@@ -19,3 +19,11 @@ class Layout extends StatelessWidget {
     );
   }
 }
+class Layout2 extends StatelessWidget {
+  const Layout2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
+}
