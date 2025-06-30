@@ -9,14 +9,42 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final List<String> categories = ['과자', '과일', '반찬', '음식',"음료"];
+  final Set<String> selectedCategories = {};
+
   @override
   Widget build(BuildContext context) {
-    return Layout(
-        title: "음식점 리스트",
-        child: Column(
-      children: [
-        Text("gd"),
-      ],
-    ));
+    return Layout2(
+      title: "갈드컵 모음집",
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: categories
+                .map(
+                  (category) => Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Checkbox(
+                        value: selectedCategories.contains(category),
+                        onChanged: (bool? checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedCategories.add(category);
+                            } else {
+                              selectedCategories.remove(category);
+                            }
+                          });
+                        },
+                      ),
+                      Text(category,style: TextStyle(fontWeight: FontWeight.bold),),
+                    ],
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
+    );
   }
 }

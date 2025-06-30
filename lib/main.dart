@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:jomakase/home/home.dart';
 import 'package:jomakase/login/login_page.dart';
 import 'package:jomakase/public_file/token.dart';
+import 'package:jomakase/public_file/userinfo.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(create: (context)=> Token(),child: MyApp(),));
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context)=> Token() ),
+      ChangeNotifierProvider(create: (context) => UserInfo(username: "",password: "",email: "",phone: "",nickname: ""))
+    ],
+    child: MyApp(),)
+  );
 }
 
 class MyApp extends StatelessWidget {

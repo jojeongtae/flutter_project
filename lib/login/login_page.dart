@@ -39,6 +39,9 @@ class _LoginPageState extends State<LoginPage> {
         final refresh = res.headers['set-cookie'];
         provider.accessToken = token!;
         provider.refreshToken = refresh!;
+
+        UserInfo userInfo = context.read<UserInfo>();
+        userInfo.updateFromJson(json.decode(utf8.decode(res.bodyBytes)));
         return true;
       } else if (res.statusCode == 401) {
         final msg = json.decode(utf8.decode(res.bodyBytes));

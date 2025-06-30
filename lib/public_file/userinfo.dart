@@ -1,16 +1,46 @@
 import 'package:flutter/material.dart';
 
-class UserInfo {
-  final String username;
-  final String password;
+class UserInfo extends ChangeNotifier{
+   String? username;
+   String? password;
+   String? email;
+   String? phone;
+   String? nickname;
 
-  UserInfo({required this.password, required this.username});
+  UserInfo({
+     this.username,
+     this.password,
+     this.email,
+     this.phone,
+     this.nickname,
+  });
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
-    return UserInfo(password: json['password'], username: json['username']);
+    return UserInfo(
+      username: json['username'],
+      password: json['password'],
+      email: json['email'],
+      phone: json['phone'],
+      nickname: json['nickname'],
+    );
+
   }
 
-  Map<String, dynamic> toJson() {
-    return {"username": this.username, "password": this.password};
+  Map<String, dynamic> toJson() => {
+    'username': username,
+    'password': password,
+    'email': email,
+    'phone': phone,
+    'nickname': nickname,
+  };
+  void updateFromJson(Map<String, dynamic> json) {
+    username = json['username'];
+    password = json['password'];
+    email = json['email'];
+    phone = json['phone'];
+    nickname = json['nickname'];
+    notifyListeners();
   }
+
+
 }
