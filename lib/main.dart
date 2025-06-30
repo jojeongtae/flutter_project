@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:jomakase/home/home.dart';
 import 'package:jomakase/login/login_page.dart';
+import 'package:jomakase/public_file/token.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(create: (context)=> Token(),child: MyApp(),));
 }
 
 class MyApp extends StatelessWidget {
@@ -13,6 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: {
         "/": (context) => LoginPage(),
+        "/home" : (context) => Home(),
       },
     );
   }
