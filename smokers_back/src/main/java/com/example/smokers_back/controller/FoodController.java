@@ -1,13 +1,13 @@
 package com.example.smokers_back.controller;
 
-import com.example.smokers_back.data.dto.FoodPairDTO;
+import com.example.smokers_back.data.dto.ItemPairDTO;
 import com.example.smokers_back.data.dto.SnackPairDTO;
-import com.example.smokers_back.service.FoodService;
+import com.example.smokers_back.service.ItemService;
 import com.example.smokers_back.service.SnackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,16 +16,23 @@ import java.util.List;
 @RequiredArgsConstructor
 
 public class FoodController {
-    private final FoodService foodService;
     private final SnackService snackService;
-
-    @GetMapping("/food")
-    public ResponseEntity<List<FoodPairDTO>> getFoodPairs(){
-        return ResponseEntity.ok(foodService.getShuffledPairs());
-    }
+    private final ItemService itemService;
 
     @GetMapping("/snack")
     public ResponseEntity<List<SnackPairDTO>> getSnackPairs(){
         return ResponseEntity.ok(snackService.getShuffledPairs());
+    }
+
+    @GetMapping("/{type}")
+    public ResponseEntity<List<ItemPairDTO>> getItemPairs(@PathVariable String type){
+        try{
+            List<ItemPairDTO> pairs=itemService.getShuffledPairs(type);
+            return ResponseEntity.ok(pairs);
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(null);
+        }catch(IllegalStateException e){
+            return ResponseEntity.status(500).body(null);
+        }
     }
 }

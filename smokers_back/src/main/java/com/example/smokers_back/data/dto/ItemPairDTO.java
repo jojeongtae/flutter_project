@@ -1,6 +1,5 @@
 package com.example.smokers_back.data.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FoodDTO {
-    private Integer id;
-    private String name;
-    private String imageurl;
+public class ItemPairDTO {
+    private ItemDTO item1;
+    private ItemDTO item2;
 }

@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FoodPairDTO {
-    private FoodDTO item1;
-    private FoodDTO item2;
+public class ItemDTO {
+    private Integer id;
+    private String name;
+    private String imageurl;
 }
