@@ -1,6 +1,5 @@
 package com.example.smokers_back.jwt;
 
-import com.example.smokers_back.data.entity.FavoriteEntity;
 import com.example.smokers_back.data.entity.UserEntity;
 import com.example.smokers_back.data.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
