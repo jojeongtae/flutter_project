@@ -30,7 +30,8 @@ class Layout2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     UserInfo user = context.read<UserInfo>();
-    print(user.email);
+    // print(user.email);
+    // print(user.username);
 
 
     return Scaffold(

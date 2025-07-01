@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class WorldcupItem {
+  final int id;
   final String name;
   final String imageurl;
 
-  WorldcupItem({required this.name, required this.imageurl});
+  WorldcupItem({required this.id,required this.name, required this.imageurl});
 
   factory WorldcupItem.fromJson(Map<String, dynamic> json) {
     return WorldcupItem(
+      id: json['id'],
       name: json['name'],
       imageurl: json['imageurl'],
     );
