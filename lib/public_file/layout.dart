@@ -51,7 +51,7 @@ class Layout2 extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
-        backgroundColor: Colors.teal[200],
+        backgroundColor: Colors.white,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [

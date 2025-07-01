@@ -23,8 +23,8 @@ class _HomeState extends State<Home> {
   String convertTitleToCategory(String title) {
     if (title.contains("과자")) return "snack";
     if (title.contains("과일")) return "fruit";
-    if (title.contains("반찬")) return "side";
-    if (title.contains("음료")) return "drink";
+    if (title.contains("반찬")) return "banchan";
+    if (title.contains("음료")) return "beverage";
     if (title.contains("음식")) return "food";
     return "unknown";
   }
@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
         : worldcupList.where((item) {
       return selectedCategories.any((category) => item.contains(category));
     }).toList();
-
+// 진미채 사이다 깍두기 복숭아
     return Layout2(
       title: "이상형 월드컵 모음집",
       child: Column(
