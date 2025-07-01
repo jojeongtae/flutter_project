@@ -30,9 +30,9 @@ public class SnackService {
         Collections.shuffle(snacks);
         List<SnackPairDTO> snackPairs=new ArrayList<>();
         for(int i=0;i<snacks.size();i+=2){
-            SnackDTO snack1=convertToDTO(snacks.get(i));
-            SnackDTO snack2=convertToDTO(snacks.get(i+1));
-            snackPairs.add(new SnackPairDTO(snack1,snack2));
+            SnackDTO item1=convertToDTO(snacks.get(i));
+            SnackDTO item2=convertToDTO(snacks.get(i+1));
+            snackPairs.add(new SnackPairDTO(item1,item2));
         }
         return snackPairs;
     }

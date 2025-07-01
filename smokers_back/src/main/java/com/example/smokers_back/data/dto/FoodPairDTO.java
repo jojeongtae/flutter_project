@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class FoodPairDTO {
-    private FoodDTO food1;
-    private FoodDTO food2;
+    private FoodDTO item1;
+    private FoodDTO item2;
 }

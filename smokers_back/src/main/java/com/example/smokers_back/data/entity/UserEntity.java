@@ -42,7 +42,7 @@ public class UserEntity {
     @Column(name = "role", nullable = false, length = 100)
     private String role;
 
-    @OneToMany(mappedBy = "userid", fetch = FetchType.EAGER)
-    private Set<FavoriteEntity> favorites = new LinkedHashSet<>();
+//    @OneToMany(mappedBy = "userid", fetch = FetchType.EAGER)
+//    private Set<FavoriteEntity> favorites = new LinkedHashSet<>();
 
 }

@@ -57,8 +57,8 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         responseData.put("email", user.getEmail());
         responseData.put("phone", user.getPhone());
         responseData.put("nickname", user.getNickname());
-        Set<FavoriteEntity> favorites = user.getFavorites();
-        responseData.put("favorites", favorites);
+//        Set<FavoriteEntity> favorites = user.getFavorites();
+//        responseData.put("favorites", favorites);
         ObjectMapper mapper = new ObjectMapper();
         String jsonMessage = mapper.writeValueAsString(responseData);
 
