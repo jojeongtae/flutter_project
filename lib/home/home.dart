@@ -20,6 +20,14 @@ class _HomeState extends State<Home> {
     "음료 월드컵 32강",
     "과자 월드컵 32강",
   ];
+  String convertTitleToCategory(String title) {
+    if (title.contains("과자")) return "snack";
+    if (title.contains("과일")) return "fruit";
+    if (title.contains("반찬")) return "side";
+    if (title.contains("음료")) return "drink";
+    if (title.contains("음식")) return "food";
+    return "unknown";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +78,7 @@ class _HomeState extends State<Home> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WorldcupPage(title: item),
+                        builder: (context) => WorldcupPage(title: item,category: convertTitleToCategory(item)),
                       ),
                     );
                   },

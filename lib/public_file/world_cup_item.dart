@@ -15,15 +15,15 @@ class WorldcupItem {
 }
 
 class FoodPair {
-  final WorldcupItem food1;
-  final WorldcupItem food2;
+  final WorldcupItem item1;
+  final WorldcupItem item2;
 
-  FoodPair({required this.food1, required this.food2});
+  FoodPair({required this.item1, required this.item2});
 
   factory FoodPair.fromJson(Map<String, dynamic> json) {
     return FoodPair(
-      food1: WorldcupItem.fromJson(json['food1']),
-      food2: WorldcupItem.fromJson(json['food2']),
+      item1: WorldcupItem.fromJson(json['item1']),
+      item2: WorldcupItem.fromJson(json['item2']),
     );
   }
 }

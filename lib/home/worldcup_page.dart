@@ -6,7 +6,8 @@ import 'package:jomakase/public_file/world_cup_item.dart';
 
 class WorldcupPage extends StatefulWidget {
   final String? title;
-  const WorldcupPage({super.key, required this.title});
+  final String? category;
+  const WorldcupPage({super.key, required this.title,required this.category});
 
   @override
   State<WorldcupPage> createState() => _WorldcupPageState();
@@ -26,7 +27,7 @@ class _WorldcupPageState extends State<WorldcupPage> {
   }
 
   Future<List<WorldcupItem>> fetchData() async {
-    final url = Uri.parse("http://10.0.2.2:8080/food/round");
+    final url = Uri.parse("http://10.0.2.2:8080/${widget.category}");
     final res = await http.get(url);
 
     if (res.statusCode == 200) {
@@ -36,8 +37,8 @@ class _WorldcupPageState extends State<WorldcupPage> {
       // FoodPair를 WorldcupItem으로 분리
       List<WorldcupItem> items = [];
       for (var pair in pairs) {
-        items.add(pair.food1);
-        items.add(pair.food2);
+        items.add(pair.item1);
+        items.add(pair.item2);
       }
       return items;
     } else {
