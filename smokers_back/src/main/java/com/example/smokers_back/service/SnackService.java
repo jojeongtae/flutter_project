@@ -1,12 +1,8 @@
 package com.example.smokers_back.service;
 
-import com.example.smokers_back.data.dao.FoodDAO;
 import com.example.smokers_back.data.dao.SnackDAO;
-import com.example.smokers_back.data.dto.FoodDTO;
-import com.example.smokers_back.data.dto.FoodPairDTO;
 import com.example.smokers_back.data.dto.SnackDTO;
 import com.example.smokers_back.data.dto.SnackPairDTO;
-import com.example.smokers_back.data.entity.FoodEntity;
 import com.example.smokers_back.data.entity.SnackEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

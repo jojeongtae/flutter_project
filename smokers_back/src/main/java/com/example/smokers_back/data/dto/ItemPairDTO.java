@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class FoodPairDTO {
-    private FoodDTO food1;
-    private FoodDTO food2;
+public class ItemPairDTO {
+    private ItemDTO item1;
+    private ItemDTO item2;
 }
