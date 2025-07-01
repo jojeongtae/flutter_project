@@ -4,6 +4,7 @@ import com.example.smokers_back.data.dao.ResultDAO;
 import com.example.smokers_back.data.dto.ResultDTO;
 import com.example.smokers_back.data.entity.ResultEntity;
 import com.example.smokers_back.data.entity.UserEntity;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,6 @@ public class ResultService {
         resultDTO.setWinnertype(saved.getWinnertype());
         resultDTO.setWinnerid(saved.getWinnerid());
         resultDTO.setPlayedAt(saved.getPlayedAt());
-
         return resultDTO;
     }
 
@@ -52,6 +52,7 @@ public class ResultService {
                     dto.setWinnertype(entity.getWinnertype());
                     dto.setWinnerid(entity.getWinnerid());
                     dto.setPlayedAt(entity.getPlayedAt());
+                    dto.setComment(entity.getComment());
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -67,8 +68,25 @@ public class ResultService {
                     dto.setWinnertype(entity.getWinnertype());
                     dto.setWinnerid(entity.getWinnerid());
                     dto.setPlayedAt(entity.getPlayedAt());
+                    dto.setComment(entity.getComment());
                     return dto;
                 })
                 .collect(Collectors.toList());
     }
+
+    public ResultDTO addComment(Integer id, String comment) {
+        ResultEntity result = this.resultDAO.addComment(id, comment);
+        if (result==null){
+            throw new EntityNotFoundException("entity not found : "+id);
+        }
+        ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setId(result.getId());
+        resultDTO.setUsername(result.getUsername().getUsername());
+        resultDTO.setWinnertype(result.getWinnertype());
+        resultDTO.setWinnerid(result.getWinnerid());
+        resultDTO.setPlayedAt(result.getPlayedAt());
+        resultDTO.setComment(result.getComment());
+        return resultDTO;
+    }
+
 }

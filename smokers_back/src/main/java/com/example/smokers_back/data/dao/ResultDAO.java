@@ -35,4 +35,13 @@ public class ResultDAO {
     public List<ResultEntity> findAllByWinnerType(String winnertype) {
         return resultRepository.findAllByWinnertype(winnertype);
     }
+
+    public ResultEntity addComment(Integer id, String comment) {
+        ResultEntity result = this.resultRepository.findById(id).orElse(null);
+        if (result != null) {
+            result.setComment(comment);
+            return this.resultRepository.save(result);
+        }
+        return null;
+    }
 }
