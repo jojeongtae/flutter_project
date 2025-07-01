@@ -19,4 +19,5 @@ public class ResultDTO {
     private String winnertype;
     private Integer winnerid;
     private LocalDateTime playedAt;
+    private String comment;
 }

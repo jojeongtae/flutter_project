@@ -37,4 +37,7 @@ public class ResultEntity {
     @Column(name = "played_at")
     private LocalDateTime playedAt;
 
+    @Column(name = "comment", length = 100)
+    private String comment;
+
 }

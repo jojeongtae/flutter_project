@@ -4,6 +4,9 @@ package com.example.smokers_back.controller;
 import com.example.smokers_back.data.dto.UserDTO;
 import com.example.smokers_back.data.entity.UserEntity;
 import com.example.smokers_back.data.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +39,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body("가입성공");
     }
 
-    @GetMapping(value="/admin")
-    public ResponseEntity<String> admin() {
-        return ResponseEntity.status(HttpStatus.OK).body("관리자입니다.");
+    @PostMapping(value = "/logout1")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = new Cookie("refresh", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+        return ResponseEntity.status(HttpStatus.OK).body("refresh token deleted");
     }
 }

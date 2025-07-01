@@ -41,4 +41,9 @@ public class ResultController {
         List<ResultDTO> results=resultService.findAllByWinnerType(winnertype);
         return ResponseEntity.ok(results);
     }
+
+    @PutMapping(value = "/comment")
+    public ResponseEntity<ResultDTO> updateComment(@RequestParam Integer id, @RequestParam String comment){
+        return ResponseEntity.ok(this.resultService.addComment(id, comment));
+    }
 }
