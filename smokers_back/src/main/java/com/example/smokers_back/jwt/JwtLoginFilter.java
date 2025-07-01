@@ -54,6 +54,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("role", role);
+        responseData.put("username", username);
         responseData.put("email", user.getEmail());
         responseData.put("phone", user.getPhone());
         responseData.put("nickname", user.getNickname());
