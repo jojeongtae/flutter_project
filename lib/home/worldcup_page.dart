@@ -29,7 +29,7 @@ class _WorldcupPageState extends State<WorldcupPage> {
   Future<List<WorldcupItem>> fetchData() async {
     final url = Uri.parse("http://10.0.2.2:8080/${widget.category}");
     final res = await http.get(url);
-
+print(res.statusCode);
     if (res.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(utf8.decode(res.bodyBytes));
       final pairs = jsonList.map((e) => FoodPair.fromJson(e)).toList();

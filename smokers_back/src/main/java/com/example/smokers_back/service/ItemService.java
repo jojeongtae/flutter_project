@@ -27,7 +27,6 @@ public class ItemService {
             throw new IllegalStateException("Invalid type");
         }
 
-        Collections.shuffle(dtos);
         List<ItemPairDTO> pairs=new ArrayList<>();
 
         for(int i=0;i<dtos.size();i+=2){
@@ -36,6 +35,7 @@ public class ItemService {
                             .item2(dtos.get(i+1))
                     .build());
         }
+        Collections.shuffle(pairs);
         return pairs;
     }
 
