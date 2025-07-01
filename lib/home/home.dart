@@ -10,7 +10,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<String> categories = ['과자', '과일', '반찬', '음식', '음료'];
+  final List<String> categories = ['과자', '과일', '반찬', '음식', '음료',"알콜"];
   final Set<String> selectedCategories = {};
 
   final List<String> worldcupList = [
@@ -19,6 +19,7 @@ class _HomeState extends State<Home> {
     "반찬 월드컵 32강",
     "음료 월드컵 32강",
     "과자 월드컵 32강",
+    "알콜 월드컵 32강"
   ];
   String convertTitleToCategory(String title) {
     if (title.contains("과자")) return "snack";
@@ -26,7 +27,8 @@ class _HomeState extends State<Home> {
     if (title.contains("반찬")) return "banchan";
     if (title.contains("음료")) return "beverage";
     if (title.contains("음식")) return "food";
-    return "unknown";
+    if (title.contains("알콜")) return "alcohol";
+      return "unknown";
   }
 
   @override
@@ -37,6 +39,7 @@ class _HomeState extends State<Home> {
       return selectedCategories.any((category) => item.contains(category));
     }).toList();
 // 진미채 사이다 깍두기 복숭아
+
     return Layout2(
       title: "이상형 월드컵 모음집",
       child: Column(
