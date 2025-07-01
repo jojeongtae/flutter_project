@@ -3,8 +3,7 @@ package com.example.smokers_back.service;
 import com.example.smokers_back.data.dao.ItemDAO;
 import com.example.smokers_back.data.dto.ItemDTO;
 import com.example.smokers_back.data.dto.ItemPairDTO;
-import com.example.smokers_back.data.entity.FoodEntity;
-import com.example.smokers_back.data.entity.SnackEntity;
+import com.example.smokers_back.data.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +51,25 @@ public class ItemService {
                     .name(s.getSnack())
                     .imageurl(s.getImageurl())
                     .build();
-        }else{
+        } else if(entity instanceof BeverageEntity be){
+            return ItemDTO.builder()
+                    .id(be.getId())
+                    .name(be.getBeverage())
+                    .imageurl(be.getImageurl())
+                    .build();
+        }else if(entity instanceof FruitEntity fr){
+            return ItemDTO.builder()
+                    .id(fr.getId())
+                    .name(fr.getFruit())
+                    .imageurl(fr.getImageurl())
+                    .build();
+        }else if(entity instanceof BanchanEntity ba){
+            return ItemDTO.builder()
+                    .id(ba.getId())
+                    .name(ba.getBanchan())
+                    .imageurl(ba.getImageurl())
+                    .build();
+        }else {
             throw new IllegalArgumentException("Invalid type");
         }
     }
