@@ -58,15 +58,68 @@ class Statistics extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = rankings[index];
               return ListTile(
-                leading: Text("${index + 1}위"),
-                title: Text(item.name),
-                subtitle: Text("선택된 횟수: ${item.count}"),
-                trailing: Image.network(item.imageurl, width: 60, height: 60),
+                // ✅ leading: 순위 + 이미지
+                leading: SizedBox(
+                  width: 80, // 넉넉한 너비 확보
+                  child: Row(
+                    children: [
+                      Text(
+                        "${index + 1}위",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(
+                          item.imageurl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ✅ title: 음식 이름
+                title: Text(
+                  item.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+
+                // ✅ subtitle: 선택된 횟수
+                subtitle: Text(
+                  "선택된 횟수: ${item.count}",
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 13,
+                  ),
+                ),
+
+                // ✅ trailing: 직접 쓰실 예정 → 일단 비워둠
+                trailing: SizedBox(
+                width: 80,
+                height: 10,
+                child: LinearProgressIndicator(
+                  value: item.rating, // 예: 승률
+                  backgroundColor: Colors.grey.shade300,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ),
+              ),
+
+                // ✅ onTap: 댓글 다이얼로그
                 onTap: () {
-                  //댓글창
+                  // 기존 댓글 다이얼로그 열기
                   showDialog(
                     context: context,
                     builder: (context) {
+                      // 그대로 유지
                       return Dialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -74,99 +127,77 @@ class Statistics extends StatelessWidget {
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.8,
                           height: 400,
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "${item.name}에 대한 댓글",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
                                 ),
                               ),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               Expanded(
                                 child: FutureBuilder<List<CommentItem>>(
                                   future: fetchComments(item.id),
                                   builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return Center(
-                                        child: CircularProgressIndicator(),
-                                      );
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return const Center(child: CircularProgressIndicator());
                                     } else if (snapshot.hasError) {
                                       return Text("에러: ${snapshot.error}");
-                                    } else if (!snapshot.hasData ||
-                                        snapshot.data!.isEmpty) {
-                                      return Text("댓글이 없습니다");
+                                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                      return const Text("댓글이 없습니다");
                                     }
 
-                                    final List<dynamic> comments =
-                                        snapshot.data!;
-
+                                    final comments = snapshot.data!;
                                     return ListView.builder(
                                       itemCount: comments.length,
                                       itemBuilder: (context, index) {
                                         final comment = comments[index];
-
-                                        // playedAt 예: 2025-07-02 10:30:41.123 → 앞부분만 추출
-                                        final formattedDate = comment.playedAt
-                                            .toString()
-                                            .substring(
-                                              0,
-                                              16,
-                                            ); // yyyy-MM-dd HH:mm
+                                        final formattedDate = comment.playedAt.toString().substring(0, 16);
 
                                         return Padding(
-                                          padding:  EdgeInsets.only(bottom: 10),
+                                          padding: const EdgeInsets.only(bottom: 10),
                                           child: ListTile(
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(10),
-                                              side:  BorderSide(color: Colors.grey),
+                                              side: const BorderSide(color: Colors.grey),
                                             ),
-                                            leading:  Icon(Icons.person),
+                                            leading: const Icon(Icons.person),
                                             subtitle: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                // 닉네임 + 시간 (한 줄에 정렬)
                                                 Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
                                                     Text(
                                                       comment.username,
-                                                      style:  TextStyle(
+                                                      style: const TextStyle(
                                                         fontWeight: FontWeight.bold,
                                                         fontSize: 14,
                                                       ),
                                                     ),
                                                     Text(
                                                       formattedDate,
-                                                      style:  TextStyle(
+                                                      style: const TextStyle(
                                                         fontSize: 12,
                                                         color: Colors.grey,
                                                       ),
                                                     ),
                                                   ],
                                                 ),
-
-                                                 SizedBox(height: 6),
-
-                                                // 댓글 내용
+                                                const SizedBox(height: 6),
                                                 Text(
                                                   comment.comment,
-                                                  style:  TextStyle(fontSize: 15),
+                                                  style: const TextStyle(fontSize: 15),
                                                 ),
                                               ],
                                             ),
-                                            contentPadding:  EdgeInsets.symmetric(
-                                              horizontal: 16,
-                                              vertical: 10,
-                                            ),
+                                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                           ),
                                         );
-
-
                                       },
                                     );
                                   },
@@ -180,6 +211,7 @@ class Statistics extends StatelessWidget {
                   );
                 },
               );
+
             },
           );
         },

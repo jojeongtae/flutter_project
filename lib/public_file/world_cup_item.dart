@@ -35,12 +35,13 @@ class RankingItem {
   final String name;
   final String imageurl;
   final int count;
-
+  final double rating;
   RankingItem({
     required this.id,
     required this.name,
     required this.imageurl,
     required this.count,
+    required this.rating
   });
 
   factory RankingItem.fromJson(Map<String, dynamic> json) {
@@ -49,6 +50,7 @@ class RankingItem {
       name: json['name'],
       imageurl: json['imageurl'],
       count: json['count'],
+      rating : json['rating']
     );
   }
 }

@@ -119,10 +119,6 @@ public class ResultService {
         return resultDTOS;
     }
 
-    public  deleteById(Integer id) {
-
-    }
-
 
 
 }
