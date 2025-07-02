@@ -51,6 +51,11 @@ public class ResultController {
         return ResponseEntity.ok(rankingService.getRanking(winnertype));
     }
 
+    @GetMapping(value = "/comment")
+    public ResponseEntity<List<ResultDTO>> getComments(@RequestParam Integer winnerid, @RequestParam String winnertype) {
+        return ResponseEntity.ok(this.resultService.allComment(winnertype, winnerid));
+    }
+
 
     @PutMapping(value = "/comment")
     public ResponseEntity<ResultDTO> updateComment(@RequestParam Integer id, @RequestParam String comment){

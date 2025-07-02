@@ -98,6 +98,29 @@ public class ResultService {
         return resultDTO;
     }
 
+    public List<ResultDTO> allComment(String winnerType, Integer winnerid) {
+        List<ResultEntity> entityList=resultDAO.allComments(winnerType, winnerid);
+        if (entityList.isEmpty()){
+            return null;
+        }
+        List<ResultEntity> resultEntities = entityList.stream().filter(e->e.getComment()!=null && !e.getComment().isEmpty()).toList();
+        if (resultEntities.isEmpty()){
+            return null;
+        }
+        List<ResultDTO> resultDTOS = new ArrayList<>();
+        for (ResultEntity resultEntity : resultEntities) {
+            ResultDTO resultDTO = new ResultDTO();
+            resultDTO.setId(resultEntity.getId());
+            resultDTO.setUsername(resultEntity.getUsername().getUsername());
+            resultDTO.setWinnertype(resultEntity.getWinnertype());
+            resultDTO.setWinnerid(resultEntity.getWinnerid());
+            resultDTO.setPlayedAt(resultEntity.getPlayedAt());
+            resultDTO.setComment(resultEntity.getComment());
+            resultDTOS.add(resultDTO);
+        }
+        return resultDTOS;
+    }
+
 
 
 }
