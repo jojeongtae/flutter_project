@@ -16,6 +16,8 @@ public class ItemDAO {
     private final FruitRepository fruitRepository;
     private final BeverageRepository beverageRepository;
     private final BanchanRepository banchanRepository;
+    private final AlcoholRepository alcoholRepository;
+    private final GwaesikRepository gwaesikRepository;
 
     public List<Object> getItemsByType(String type){
         return switch(type.toLowerCase()){
@@ -24,6 +26,8 @@ public class ItemDAO {
             case "fruit" -> new ArrayList<>(fruitRepository.findAll());
             case "beverage" -> new ArrayList<>(beverageRepository.findAll());
             case "banchan" -> new ArrayList<>(banchanRepository.findAll());
+            case "alcohol" -> new ArrayList<>(alcoholRepository.findAll());
+            case "gwaesik" -> new ArrayList<>(gwaesikRepository.findAll());
             default -> throw new IllegalArgumentException("Invalid type");
         };
     }

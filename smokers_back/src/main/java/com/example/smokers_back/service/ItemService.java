@@ -69,6 +69,18 @@ public class ItemService {
                     .name(ba.getBanchan())
                     .imageurl(ba.getImageurl())
                     .build();
+        }else if(entity instanceof AlcoholEntity a){
+            return ItemDTO.builder()
+                    .id(a.getId())
+                    .name(a.getAlcohol())
+                    .imageurl(a.getImageurl())
+                    .build();
+        }else if(entity instanceof GwaesikEntity g){
+            return ItemDTO.builder()
+                    .id(g.getId())
+                    .name(g.getGwaesik())
+                    .imageurl(g.getImageurl())
+                    .build();
         }else {
             throw new IllegalArgumentException("Invalid type");
         }
