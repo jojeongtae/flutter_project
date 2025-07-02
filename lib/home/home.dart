@@ -10,7 +10,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<String> categories = ['과자', '과일', '반찬', '음식', '음료',"알콜"];
+  final List<String> categories = ['과자', '과일', '반찬', '음식', '음료', "알콜"];
   final Set<String> selectedCategories = {};
 
   final List<String> worldcupList = [
@@ -21,6 +21,7 @@ class _HomeState extends State<Home> {
     "과자 월드컵 32강",
     "알콜 월드컵 32강"
   ];
+
   String convertTitleToCategory(String title) {
     if (title.contains("과자")) return "snack";
     if (title.contains("과일")) return "fruit";
@@ -28,34 +29,41 @@ class _HomeState extends State<Home> {
     if (title.contains("음료")) return "beverage";
     if (title.contains("음식")) return "food";
     if (title.contains("알콜")) return "alcohol";
-      return "unknown";
+    return "unknown";
   }
 
   @override
   Widget build(BuildContext context) {
     final filteredList = selectedCategories.isEmpty
         ? worldcupList
-        : worldcupList.where((item) {
-      return selectedCategories.any((category) => item.contains(category));
-    }).toList();
-// 진미채 사이다 깍두기 복숭아
+        : worldcupList
+        .where((item) => selectedCategories.any((category) => item.contains(category)))
+        .toList();
 
     return Layout2(
       title: "이상형 월드컵 모음집",
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ 카테고리 필터
-          Wrap(
-            spacing: 10,
-            children: categories.map((category) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: selectedCategories.contains(category),
-                    onChanged: (bool? checked) {
+          const SizedBox(height: 10),
+
+          // ✅ 카테고리 필터 (FilterChip)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: categories.map((category) {
+                final isSelected = selectedCategories.contains(category);
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: Text(category),
+                    selected: isSelected,
+                    selectedColor: Colors.blue.shade100,
+                    checkmarkColor: Colors.blue,
+                    onSelected: (selected) {
                       setState(() {
-                        if (checked == true) {
+                        if (selected) {
                           selectedCategories.add(category);
                         } else {
                           selectedCategories.remove(category);
@@ -63,11 +71,13 @@ class _HomeState extends State<Home> {
                       });
                     },
                   ),
-                  Text(category, style: TextStyle(fontWeight: FontWeight.bold)),
-                ],
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
+
+
+          const SizedBox(height: 10),
           const Divider(),
 
           // ✅ 필터링된 월드컵 리스트
@@ -76,35 +86,55 @@ class _HomeState extends State<Home> {
               itemCount: filteredList.length,
               itemBuilder: (context, index) {
                 final item = filteredList[index];
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WorldcupPage(title: item,category: convertTitleToCategory(item)),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 80, // 항목 높이 크게
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade300),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.emoji_events, size: 28),
-                            SizedBox(width: 12),
-                            Text(item, style: TextStyle(fontSize: 20)),
-                          ],
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => WorldcupPage(
+                            title: item,
+                            category: convertTitleToCategory(item),
+                          ),
                         ),
-                        Icon(Icons.arrow_forward_ios),
-                      ],
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      height: 80,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.emoji_events, color: Colors.orange, size: 28),
+                              const SizedBox(width: 12),
+                              Text(
+                                item,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                        ],
+                      ),
                     ),
                   ),
                 );

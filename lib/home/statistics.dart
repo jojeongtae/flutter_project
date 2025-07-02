@@ -23,13 +23,15 @@ class Statistics extends StatelessWidget {
   }
 
   // 댓글 데이터 받아오기
-  Future<List<String>> fetchComments(int winnerid) async {
-    final url = Uri.parse("http://10.0.2.2:8080?winnerid=$winnerid&winnertype=${category}_world_cup");
+  Future<List<CommentItem>> fetchComments(int winnerid) async {
+    final url = Uri.parse(
+      "http://10.0.2.2:8080/result/comment?winnerid=$winnerid&winnertype=${category}_world_cup",
+    );
     final res = await http.get(url);
 
     if (res.statusCode == 200) {
       final List<dynamic> result = json.decode(utf8.decode(res.bodyBytes));
-      return result.map((e) => e.toString()).toList();
+      return result.map((e) => CommentItem.fromJson(e)).toList();
     } else {
       throw Exception("댓글 데이터를 불러오지 못했습니다");
     }
@@ -85,7 +87,7 @@ class Statistics extends StatelessWidget {
                               ),
                               SizedBox(height: 12),
                               Expanded(
-                                child: FutureBuilder<List<String>>(
+                                child: FutureBuilder<List<CommentItem>>(
                                   future: fetchComments(item.id),
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
@@ -100,16 +102,71 @@ class Statistics extends StatelessWidget {
                                       return Text("댓글이 없습니다");
                                     }
 
-                                    final comments = snapshot.data!;
+                                    final List<dynamic> comments =
+                                        snapshot.data!;
+
                                     return ListView.builder(
                                       itemCount: comments.length,
                                       itemBuilder: (context, index) {
+                                        final comment = comments[index];
+
+                                        // playedAt 예: 2025-07-02 10:30:41.123 → 앞부분만 추출
+                                        final formattedDate = comment.playedAt
+                                            .toString()
+                                            .substring(
+                                              0,
+                                              16,
+                                            ); // yyyy-MM-dd HH:mm
+
                                         return Padding(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 4.0,
+                                          padding:  EdgeInsets.only(bottom: 10),
+                                          child: ListTile(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                              side:  BorderSide(color: Colors.grey),
+                                            ),
+                                            leading:  Icon(Icons.person),
+                                            subtitle: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                // 닉네임 + 시간 (한 줄에 정렬)
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(
+                                                      comment.username,
+                                                      style:  TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      formattedDate,
+                                                      style:  TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+
+                                                 SizedBox(height: 6),
+
+                                                // 댓글 내용
+                                                Text(
+                                                  comment.comment,
+                                                  style:  TextStyle(fontSize: 15),
+                                                ),
+                                              ],
+                                            ),
+                                            contentPadding:  EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 10,
+                                            ),
                                           ),
-                                          child: Text("• ${comments[index]}"),
                                         );
+
+
                                       },
                                     );
                                   },
