@@ -39,231 +39,192 @@ class Statistics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color primaryColor = Colors.deepPurple;
+    final Color accentColor = Colors.amber;
+    final Color backgroundColor = Colors.grey.shade50;
+    final Color textColor = Colors.grey.shade800;
+    final Color subtleTextColor = Colors.grey.shade600;
+
     return Layout2(
       title: "최종 순위표",
-      child: FutureBuilder<List<RankingItem>>(
-        future: fetchRanking(category!),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("에러 발생: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("순위 데이터 없음"));
-          }
+      child: Container(
+        color: backgroundColor,
+        child: FutureBuilder<List<RankingItem>>(
+          future: fetchRanking(category!),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primaryColor)));
+            } else if (snapshot.hasError) {
+              return Center(child: Text("에러 발생: ${snapshot.error}", style: TextStyle(color: Colors.red.shade700)));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text("순위 데이터가 없습니다."));
+            }
 
-          final rankings = snapshot.data!;
-          return ListView.builder(
-            itemCount: rankings.length,
-            itemBuilder: (context, index) {
-              final item = rankings[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Material(
-                  elevation: 2,
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
+            final rankings = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              itemCount: rankings.length,
+              itemBuilder: (context, index) {
+                final item = rankings[index];
+                return Card(
+                  elevation: 3.0,
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
                   child: InkWell(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return Dialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.8,
-                              height: 400,
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "${item.name}에 대한 댓글",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Expanded(
-                                    child: FutureBuilder<List<CommentItem>>(
-                                      future: fetchComments(item.id),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.connectionState == ConnectionState.waiting) {
-                                          return const Center(child: CircularProgressIndicator());
-                                        } else if (snapshot.hasError) {
-                                          return Text("에러: ${snapshot.error}");
-                                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                          return const Text("댓글이 없습니다");
-                                        }
+                    onTap: () => _showCommentsDialog(context, item, primaryColor, textColor),
+                    borderRadius: BorderRadius.circular(15.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          _buildRankIndicator(index, primaryColor),
+                          const SizedBox(width: 16),
+                          _buildItemImage(item.imageurl),
+                          const SizedBox(width: 16),
+                          _buildItemInfo(item, textColor, subtleTextColor),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-                                        final comments = snapshot.data!;
-                                        return ListView.builder(
-                                          itemCount: comments.length,
-                                          itemBuilder: (context, index) {
-                                            final comment = comments[index];
-                                            final formattedDate = comment.playedAt.toString().substring(0, 16);
-                                            return Padding(
-                                              padding: const EdgeInsets.only(bottom: 10),
-                                              child: ListTile(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  side: const BorderSide(color: Colors.grey),
-                                                ),
-                                                leading: const Icon(Icons.person),
-                                                subtitle: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          comment.nickname,
-                                                          style: const TextStyle(
-                                                            fontWeight: FontWeight.bold,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          formattedDate,
-                                                          style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 6),
-                                                    Text(
-                                                      comment.comment,
-                                                      style: const TextStyle(fontSize: 15),
-                                                    ),
-                                                  ],
-                                                ),
-                                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
+  Widget _buildRankIndicator(int index, Color primaryColor) {
+    if (index < 3) {
+      return Column(
+        children: [
+          Icon(
+            Icons.emoji_events,
+            color: index == 0 ? Colors.amber.shade600 : (index == 1 ? Colors.grey.shade500 : Colors.brown.shade400),
+            size: 32,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "${index + 1}위",
+            style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 16),
+          ),
+        ],
+      );
+    }
+    return CircleAvatar(
+      backgroundColor: primaryColor.withOpacity(0.8),
+      child: Text(
+        "${index + 1}",
+        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildItemImage(String imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12.0),
+      child: Image.network(
+        imageUrl,
+        width: 70,
+        height: 70,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.fastfood, size: 70),
+      ),
+    );
+  }
+
+  Widget _buildItemInfo(RankingItem item, Color textColor, Color subtleTextColor) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            item.name,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "우승 횟수: ${item.count}",
+            style: TextStyle(color: subtleTextColor, fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: item.rating,
+            backgroundColor: Colors.grey.shade300,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              item.rating > 0.7 ? Colors.green.shade500 : (item.rating > 0.4 ? Colors.orange.shade500 : Colors.red.shade500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCommentsDialog(BuildContext context, RankingItem item, Color primaryColor, Color textColor) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "'${item.name}'에 대한 댓글",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: primaryColor),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 300,
+                  child: FutureBuilder<List<CommentItem>>(
+                    future: fetchComments(item.id),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primaryColor)));
+                      } else if (snapshot.hasError) {
+                        return Text("에러: ${snapshot.error}", style: TextStyle(color: Colors.red.shade700));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text("아직 댓글이 없습니다."));
+                      }
+
+                      final comments = snapshot.data!;
+                      return ListView.separated(
+                        itemCount: comments.length,
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemBuilder: (context, index) {
+                          final comment = comments[index];
+                          return ListTile(
+                            leading: const Icon(Icons.account_circle, size: 40),
+                            title: Text(comment.nickname, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text(comment.comment),
+                            trailing: Text(
+                              comment.playedAt.toString().substring(0, 10),
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
                             ),
                           );
                         },
                       );
                     },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // 트로피 아이콘 (1~3등만)
-                          if (index < 3)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: Icon(
-                                Icons.emoji_events,
-                                color: index == 0
-                                    ? Colors.amber
-                                    : index == 1
-                                    ? Colors.grey
-                                    : Colors.brown,
-                                size: 28,
-                              ),
-                            )
-                          else
-                            const SizedBox(width: 34), // 아이콘 없는 등수는 여백만
-
-                          // 순위 원형
-                          CircleAvatar(
-                            radius: 16,
-                            backgroundColor: Colors.blueAccent,
-                            child: Text(
-                              "${index + 1}",
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // ✅ Expanded로 감싸서 남은 공간 확보
-                          Expanded(
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    item.imageurl,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                // 이름, 우승횟수, 게이지바 등 텍스트 정보들
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        item.name,
-                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        "우승 횟수: ${item.count}",
-                                        style: const TextStyle(color: Colors.grey, fontSize: 14),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: LinearProgressIndicator(
-                                          value: item.rating,
-                                          minHeight: 8,
-                                          backgroundColor: Colors.grey.shade200,
-                                          valueColor: AlwaysStoppedAnimation<Color>(
-                                            item.rating > 0.7
-                                                ? Colors.green
-                                                : item.rating > 0.4
-                                                ? Colors.orange
-                                                : Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          Column(
-                            children: [
-                              const Icon(Icons.bar_chart, size: 20, color: Colors.grey),
-                              Text(
-                                "${(item.rating * 100).round()}%",
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
-              );
-            },
-          );
-        },
-      ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text("닫기", style: TextStyle(color: primaryColor)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

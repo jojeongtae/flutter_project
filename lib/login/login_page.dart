@@ -1,8 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:jomakase/public_file/layout.dart';
 import 'package:http/http.dart' as http;
+import 'package:jomakase/public_file/layout.dart';
 import 'package:jomakase/public_file/token.dart';
 import 'package:jomakase/public_file/userinfo.dart';
 import 'package:provider/provider.dart';
@@ -14,14 +13,27 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLogin = true;
-  String? username;
-  String? password;
-  String? email;
-  String? phone;
-  String? nickname;
+  String? username, password, email, phone, nickname;
+  
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Future<bool> loginRequest() async {
     Token provider = context.read<Token>();
@@ -45,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         return true;
       } else if (res.statusCode == 401) {
         final msg = json.decode(utf8.decode(res.bodyBytes));
-        loginSnackBar(context, msg['error']);
+        _showSnackbar(msg['error'], Colors.red);
       }
     } catch (e) {
       print(e);
@@ -71,11 +83,11 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (res.statusCode == 200) {
-        loginSnackBar(context, "회원가입 성공");
+        _showSnackbar("회원가입 성공", Colors.green);
         return true;
       } else {
         final msg = json.decode(utf8.decode(res.bodyBytes));
-        loginSnackBar(context, msg['error']);
+        _showSnackbar(msg['error'], Colors.red);
       }
     } catch (e) {
       print(e);
@@ -83,175 +95,120 @@ class _LoginPageState extends State<LoginPage> {
     return false;
   }
 
-  bool tryValidation() {
+  void _trySubmit() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      return true;
+      if (_isLogin) {
+        loginRequest().then((success) {
+          if (success) Navigator.pushReplacementNamed(context, "/home");
+        });
+      } else {
+        signupRequest().then((success) {
+          if (success) {
+            setState(() => _isLogin = true);
+            _controller.forward(from: 0.0);
+            _showSnackbar("회원가입 성공! 로그인 해주세요.", Colors.green);
+          }
+        });
+      }
     }
-    return false;
+  }
+
+  void _showSnackbar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final Color primaryColor = Theme.of(context).primaryColor;
+    final Color accentColor = Theme.of(context).colorScheme.secondary;
 
     return Layout(
-      title: _isLogin ? "로그인 페이지" : "회원가입 페이지",
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isLogin = true;
-                  });
-                },
-                child: Text("로그인", style: TextStyle(fontSize: 18, fontWeight: _isLogin ? FontWeight.bold : FontWeight.normal)),
-              ),
-              SizedBox(width: 20),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isLogin = false;
-                  });
-                },
-                child: Text("회원가입", style: TextStyle(fontSize: 18, fontWeight: !_isLogin ? FontWeight.bold : FontWeight.normal)),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  key: ValueKey(1),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "no text";
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    username = value!;
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.abc_outlined, color: Colors.grey[400]),
-                    hintText: "아이디 입력 칸",
+      title: _isLogin ? "로그인" : "회원가입",
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    _isLogin ? "다시 오신 것을 환영합니다!" : "새로운 계정을 만드세요",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: primaryColor),
                   ),
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  key: ValueKey(2),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "no password";
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    password = value!;
-                  },
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.lock, color: Colors.grey[400]),
-                    hintText: "비밀번호 입력 칸",
-                  ),
-                ),
-                if (!_isLogin) ...[
-                  SizedBox(height: 20),
-                  TextFormField(
-                    key: ValueKey(3),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "no email";
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      email = value!;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.email, color: Colors.grey[400]),
-                      hintText: "이메일 입력 칸",
+                  const SizedBox(height: 40),
+                  _buildTextFormField(key: const ValueKey('username'), icon: Icons.person, label: "아이디", onSaved: (val) => username = val),
+                  const SizedBox(height: 16),
+                  _buildTextFormField(key: const ValueKey('password'), icon: Icons.lock, label: "비밀번호", onSaved: (val) => password = val, obscureText: true),
+                  if (!_isLogin) ...[
+                    const SizedBox(height: 16),
+                    _buildTextFormField(key: const ValueKey('email'), icon: Icons.email, label: "이메일", onSaved: (val) => email = val, keyboardType: TextInputType.emailAddress),
+                    const SizedBox(height: 16),
+                    _buildTextFormField(key: const ValueKey('phone'), icon: Icons.phone, label: "전화번호", onSaved: (val) => phone = val, keyboardType: TextInputType.phone),
+                    const SizedBox(height: 16),
+                    _buildTextFormField(key: const ValueKey('nickname'), icon: Icons.face, label: "닉네임", onSaved: (val) => nickname = val),
+                  ],
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _trySubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
+                    child: Text(_isLogin ? "로그인" : "회원가입", style: const TextStyle(fontSize: 18, color: Colors.white)),
                   ),
-                  SizedBox(height: 20),
-                  TextFormField(
-                    key: ValueKey(4),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "no phone";
-                      }
-                      return null;
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      setState(() => _isLogin = !_isLogin);
+                      _controller.forward(from: 0.0);
                     },
-                    onSaved: (value) {
-                      phone = value!;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.phone, color: Colors.grey[400]),
-                      hintText: "핸드폰 번호 입력 칸",
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  TextFormField(
-                    key: ValueKey(5),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "no nickname";
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      nickname = value!;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.account_circle, color: Colors.grey[400]),
-                      hintText: "닉네임 입력 칸",
+                    child: Text(
+                      _isLogin ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인",
+                      style: TextStyle(color: accentColor),
                     ),
                   ),
                 ],
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                  onPressed: () {
-                    if (tryValidation()) {
-                      if (_isLogin) {
-                        loginRequest().then((data) {
-                          if (data) {
-                            Navigator.pushNamed(context, "/home");
-                          }
-                        });
-                      } else {
-                        signupRequest().then((success) {
-                          if (success) {
-                            _isLogin = true;
-                            loginSnackBar(context, "회원가입 성공");
-                          } else {
-                            loginSnackBar(context, "회원가입 실패");
-                          }
-                        });
-                      }
-                    }
-                  },
-                  child: Text(_isLogin ? "로그인" : "회원가입", style: TextStyle(color: Colors.white)),
-                ),
-              ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
-}
 
-void loginSnackBar(BuildContext context, String msg) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(msg, textAlign: TextAlign.center),
-      duration: Duration(seconds: 2),
-      backgroundColor: Colors.green,
-    ),
-  );
+  Widget _buildTextFormField({
+    required Key key,
+    required IconData icon,
+    required String label,
+    required FormFieldSetter<String> onSaved,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      key: key,
+      onSaved: onSaved,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      validator: (value) {
+        if (value == null || value.isEmpty) return '$label을(를) 입력해주세요.';
+        return null;
+      },
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Colors.grey.shade100,
+      ),
+    );
+  }
 }

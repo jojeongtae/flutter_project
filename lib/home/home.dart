@@ -41,109 +41,120 @@ class _HomeState extends State<Home> {
         : worldcupList
         .where((item) => selectedCategories.any((category) => item.contains(category)))
         .toList();
+    
+    // Define a modern color scheme
+    final Color primaryColor = Colors.deepPurple;
+    final Color accentColor = Colors.amber;
+    final Color backgroundColor = Colors.grey.shade50;
+    final Color textColor = Colors.grey.shade800;
+    final Color subtleTextColor = Colors.grey.shade600;
 
     return Layout2(
       title: "이상형 월드컵 모음집",
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 10),
-
-          // ✅ 카테고리 필터 (FilterChip)
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
-              children: categories.map((category) {
-                final isSelected = selectedCategories.contains(category);
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    label: Text(category),
-                    selected: isSelected,
-                    selectedColor: Colors.blue.shade100,
-                    checkmarkColor: Colors.blue,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          selectedCategories.add(category);
-                        } else {
-                          selectedCategories.remove(category);
-                        }
-                      });
-                    },
-                  ),
-                );
-              }).toList(),
+      child: Container(
+        color: backgroundColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Category Filter Section
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "카테고리 선택",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: textColor,
+                ),
+              ),
             ),
-          ),
-
-
-          const SizedBox(height: 10),
-          const Divider(),
-//  청주/약주 깍두기 진미채
-          // ✅ 필터링된 월드컵 리스트
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredList.length,
-              itemBuilder: (context, index) {
-                final item = filteredList[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => WorldcupPage(
-                            title: item,
-                            category: convertTitleToCategory(item),
-                          ),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      height: 80,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 4,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: categories.map((category) {
+                  final isSelected = selectedCategories.contains(category);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: FilterChip(
+                      label: Text(category),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          if (selected) {
+                            selectedCategories.add(category);
+                          } else {
+                            selectedCategories.remove(category);
+                          }
+                        });
+                      },
+                      backgroundColor: isSelected ? primaryColor.withOpacity(0.1) : Colors.grey.shade200,
+                      selectedColor: primaryColor.withOpacity(0.2),
+                      labelStyle: TextStyle(
+                        color: isSelected ? primaryColor : textColor,
+                        fontWeight: FontWeight.w600,
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.emoji_events, color: Colors.orange, size: 28),
-                              const SizedBox(width: 12),
-                              Text(
-                                item,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                        ],
+                      checkmarkColor: primaryColor,
+                      shape: StadiumBorder(
+                        side: BorderSide(
+                          color: isSelected ? primaryColor : Colors.grey.shade300,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 10),
+            const Divider(indent: 16, endIndent: 16),
+
+            // World Cup List Section
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: filteredList.length,
+                itemBuilder: (context, index) {
+                  final item = filteredList[index];
+                  return Card(
+                    elevation: 2.0,
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      leading: CircleAvatar(
+                        backgroundColor: accentColor,
+                        child: const Icon(Icons.emoji_events, color: Colors.white),
+                      ),
+                      title: Text(
+                        item,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                          fontSize: 17,
+                        ),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: subtleTextColor),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => WorldcupPage(
+                              title: item,
+                              category: convertTitleToCategory(item),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
