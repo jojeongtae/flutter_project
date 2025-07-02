@@ -20,6 +20,8 @@ public class RankingService {
     private final BanchanRepository banchanRepository;
     private final ResultRepository  resultRepository;
     private  final BeverageRepository beverageRepository;
+    private final AlcoholRepository alcoholRepository;
+    private final GwaesikRepository gwaesikRepository;
 
     public List<RankingDTO> getRanking(String winnertype) {
         List<Object[]> rawData = resultRepository.findWinnerRanking(winnertype);
@@ -56,7 +58,15 @@ public class RankingService {
             case "beverage_world_cup":
                 return beverageRepository.findById(id)
                         .map(f -> new RankingDTO(f.getId(), f.getBeverage(), f.getImageurl(), count))
-                        .orElseThrow(() -> new IllegalArgumentException("반찬 없음"));
+                        .orElseThrow(() -> new IllegalArgumentException("음료 없음"));
+            case "alcohol_world_cup":
+                return alcoholRepository.findById(id)
+                        .map(f->new RankingDTO(f.getId(), f.getAlcohol(), f.getImageurl(), count))
+                        .orElseThrow(() -> new IllegalArgumentException("알코올 없음"));
+            case "gwaesik_world_cup":
+                return gwaesikRepository.findById(id)
+                        .map(f->new RankingDTO(f.getId(), f.getGwaesik(), f.getImageurl(), count))
+                        .orElseThrow(() -> new IllegalArgumentException("괴식 없음"));
             default:
                 throw new IllegalArgumentException("지원하지 않는 타입: " + winnertype);
         }
