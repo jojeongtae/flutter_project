@@ -19,4 +19,5 @@ public interface ResultRepository extends JpaRepository<ResultEntity,Integer> {
     List<Object[]> findWinnerRanking(@Param("type") String winnertype);
 
 
+    List<ResultEntity> findByWinnertypeAndWinnerid(String winnertype, Integer winnerid);
 }

@@ -18,8 +18,9 @@ public class RankingService {
     private final SnackRepository snackRepository;
     private final FruitRepository fruitRepository;
     private final BanchanRepository banchanRepository;
-private final ResultRepository  resultRepository;
-private  final BeverageRepository beverageRepository;
+    private final ResultRepository  resultRepository;
+    private  final BeverageRepository beverageRepository;
+
     public List<RankingDTO> getRanking(String winnertype) {
         List<Object[]> rawData = resultRepository.findWinnerRanking(winnertype);
 
