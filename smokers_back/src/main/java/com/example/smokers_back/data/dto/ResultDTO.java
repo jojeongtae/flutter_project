@@ -16,6 +16,7 @@ public class ResultDTO {
     private Integer id;
 //    private String topic;
     private String username;
+    private String nickname;
     private String winnertype;
     private Integer winnerid;
     private LocalDateTime playedAt;

@@ -43,6 +43,7 @@ public class ResultService {
         ResultDTO resultDTO = new ResultDTO();
         resultDTO.setId(saved.getId());
         resultDTO.setUsername(user.getUsername());
+        resultDTO.setNickname(user.getNickname());
         resultDTO.setWinnertype(saved.getWinnertype());
         resultDTO.setWinnerid(saved.getWinnerid());
         resultDTO.setPlayedAt(saved.getPlayedAt());
@@ -58,6 +59,7 @@ public class ResultService {
                     ResultDTO dto=new ResultDTO();
                     dto.setId(entity.getId());
                     dto.setUsername(entity.getUsername().getUsername());
+                    dto.setNickname(entity.getUsername().getNickname());
                     dto.setWinnertype(entity.getWinnertype());
                     dto.setWinnerid(entity.getWinnerid());
                     dto.setPlayedAt(entity.getPlayedAt());
@@ -91,6 +93,7 @@ public class ResultService {
         ResultDTO resultDTO = new ResultDTO();
         resultDTO.setId(result.getId());
         resultDTO.setUsername(result.getUsername().getUsername());
+        resultDTO.setNickname(result.getUsername().getNickname());
         resultDTO.setWinnertype(result.getWinnertype());
         resultDTO.setWinnerid(result.getWinnerid());
         resultDTO.setPlayedAt(result.getPlayedAt());
@@ -112,6 +115,7 @@ public class ResultService {
             ResultDTO resultDTO = new ResultDTO();
             resultDTO.setId(resultEntity.getId());
             resultDTO.setUsername(resultEntity.getUsername().getUsername());
+            resultDTO.setNickname(resultEntity.getUsername().getNickname());
             resultDTO.setWinnertype(resultEntity.getWinnertype());
             resultDTO.setWinnerid(resultEntity.getWinnerid());
             resultDTO.setPlayedAt(resultEntity.getPlayedAt());
