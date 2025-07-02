@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ResultService {
     private final ResultDAO resultDAO;
-    private final ResultRepository resultRepository;
-    private final FoodRepository foodRepository;
 
     public ResultDTO save(ResultDTO dto) {
 
