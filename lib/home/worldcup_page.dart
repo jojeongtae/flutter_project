@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 class WorldcupPage extends StatefulWidget {
   final String? title;
   final String? category;
+
   const WorldcupPage({super.key, required this.title, required this.category});
 
   @override
@@ -26,21 +27,25 @@ class _WorldcupPageState extends State<WorldcupPage> {
   WorldcupItem? winner;
   late ConfettiController _confettiController;
   bool resultSaved = false;
+  final TextEditingController _commentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     futureItems = fetchData();
-    _confettiController = ConfettiController(duration: Duration(seconds: 2));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
   }
 
   @override
   void dispose() {
     _confettiController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 
-  Future<void> resultSave() async {
+  Future<void> resultSave(String comment) async {
     try {
       final user = context.read<UserInfo>();
       final url = Uri.parse("http://10.0.2.2:8080/result/save");
@@ -48,8 +53,8 @@ class _WorldcupPageState extends State<WorldcupPage> {
         "username": user.username,
         "winnertype": "${widget.category}_world_cup",
         "winnerid": winner!.id,
+        "comment": comment,
       });
-
 
       final res = await http.post(
         url,
@@ -92,7 +97,7 @@ class _WorldcupPageState extends State<WorldcupPage> {
         });
 
         if (!resultSaved) {
-          resultSave();
+          resultSave(_commentController.text);
           resultSaved = true;
         }
       } else {
@@ -122,8 +127,8 @@ class _WorldcupPageState extends State<WorldcupPage> {
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 10),
-            Text(item.name, style: const TextStyle(fontSize: 18)),
+            SizedBox(height: 10),
+            Text(item.name, style: TextStyle(fontSize: 18)),
           ],
         ),
       ),
@@ -146,16 +151,25 @@ class _WorldcupPageState extends State<WorldcupPage> {
             confettiController: _confettiController,
             blastDirectionality: BlastDirectionality.explosive,
             shouldLoop: false,
-            colors: const [Colors.red, Colors.blue, Colors.orange, Colors.green, Colors.purple],
+            colors: [
+              Colors.red,
+              Colors.blue,
+              Colors.orange,
+              Colors.green,
+              Colors.purple,
+            ],
             emissionFrequency: 0.05,
             numberOfParticles: 10,
           ),
-          const SizedBox(height: 10),
-          const Text("🎉 우승자 🎉", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
+          SizedBox(height: 10),
+          Text(
+            "\uD83C\uDF89 우승자 \uD83C\uDF89",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
           TweenAnimationBuilder(
             tween: Tween(begin: 0.5, end: 1.0),
-            duration: const Duration(milliseconds: 800),
+            duration: Duration(milliseconds: 800),
             curve: Curves.elasticOut,
             builder: (context, value, child) {
               return Transform.scale(
@@ -164,21 +178,52 @@ class _WorldcupPageState extends State<WorldcupPage> {
               );
             },
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.8, end: 1.0),
-            duration: const Duration(milliseconds: 500),
+            duration: Duration(milliseconds: 500),
             builder: (context, value, child) {
               return Transform.scale(
                 scale: value,
                 child: Text(
                   winner!.name,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               );
             },
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: 20),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20.0),
+            child: TextField(
+              controller: _commentController,
+              decoration: InputDecoration(
+                labelText: "우승자에 대한 한마디를 남겨주세요",
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 2,
+            ),
+          ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              final comment = _commentController.text.trim();
+              print("댓글 입력값: $comment"); // ← 여기에 출력됨?
+
+              if (comment.isNotEmpty) {
+                resultSave(comment);
+                setState(() {
+                  _commentController.clear(); // 저장 후 비우기
+                });
+              } else {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("댓글을 입력해주세요")));
+              }
+            },
+            child: Text("댓글과 결과 저장"),
+          ),
+          SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -186,25 +231,30 @@ class _WorldcupPageState extends State<WorldcupPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Statistics(category: widget.category)),
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          Statistics(category: widget.category),
+                    ),
                   );
                 },
-                child: const Text("순위 보기"),
+                child: Text("순위 보기"),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("월드컵 리스트로 돌아가기"),
+                child: Text("월드컵 리스트로 돌아가기"),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               ElevatedButton.icon(
                 onPressed: () async {
                   final query = Uri.encodeComponent(winner!.name);
-                  final url = Uri.parse("https://google.com/search?q=$query 추천");
+                  final url = Uri.parse(
+                    "https://google.com/search?q=$query 추천",
+                  );
                   await launchUrl(url, mode: LaunchMode.externalApplication);
                 },
-                icon: const Icon(Icons.link),
-                label: const Text("링크 열기"),
+                icon: Icon(Icons.link),
+                label: Text("링크 열기"),
               ),
             ],
           ),
@@ -221,11 +271,11 @@ class _WorldcupPageState extends State<WorldcupPage> {
         future: futureItems,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("에러 발생: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("데이터가 없습니다."));
+            return Center(child: Text("데이터가 없습니다."));
           }
 
           if (currentRound.isEmpty && winner == null) {
@@ -240,10 +290,16 @@ class _WorldcupPageState extends State<WorldcupPage> {
 
           return Column(
             children: [
-              const SizedBox(height: 20),
-              Text("현재 라운드: ${currentRound.length}강", style: const TextStyle(fontSize: 18)),
-              const SizedBox(height: 20),
-              buildMatchView(currentRound[currentIndex], currentRound[currentIndex + 1]),
+              SizedBox(height: 20),
+              Text(
+                "현재 라운드: ${currentRound.length}강",
+                style: TextStyle(fontSize: 18),
+              ),
+              SizedBox(height: 20),
+              buildMatchView(
+                currentRound[currentIndex],
+                currentRound[currentIndex + 1],
+              ),
             ],
           );
         },

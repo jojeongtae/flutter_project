@@ -1,14 +1,19 @@
 package com.example.smokers_back.service;
 
 import com.example.smokers_back.data.dao.ResultDAO;
+import com.example.smokers_back.data.dto.RankingDTO;
 import com.example.smokers_back.data.dto.ResultDTO;
+import com.example.smokers_back.data.entity.FoodEntity;
 import com.example.smokers_back.data.entity.ResultEntity;
 import com.example.smokers_back.data.entity.UserEntity;
+import com.example.smokers_back.data.repository.FoodRepository;
+import com.example.smokers_back.data.repository.ResultRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +21,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ResultService {
     private final ResultDAO resultDAO;
+    private final ResultRepository resultRepository;
+    private final FoodRepository foodRepository;
 
     public ResultDTO save(ResultDTO dto) {
 
@@ -29,6 +36,7 @@ public class ResultService {
                 .winnertype(dto.getWinnertype())
                 .winnerid(dto.getWinnerid())
                 .playedAt(LocalDateTime.now())
+                .comment(dto.getComment())
                 .build();
 
         ResultEntity saved=resultDAO.save(entity);
@@ -38,6 +46,7 @@ public class ResultService {
         resultDTO.setWinnertype(saved.getWinnertype());
         resultDTO.setWinnerid(saved.getWinnerid());
         resultDTO.setPlayedAt(saved.getPlayedAt());
+        resultDTO.setComment(saved.getComment());
         return resultDTO;
     }
 
@@ -88,5 +97,7 @@ public class ResultService {
         resultDTO.setComment(result.getComment());
         return resultDTO;
     }
+
+
 
 }

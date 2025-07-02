@@ -29,3 +29,26 @@ class FoodPair {
     );
   }
 }
+
+class RankingItem {
+  final int id;
+  final String name;
+  final String imageurl;
+  final int count;
+
+  RankingItem({
+    required this.id,
+    required this.name,
+    required this.imageurl,
+    required this.count,
+  });
+
+  factory RankingItem.fromJson(Map<String, dynamic> json) {
+    return RankingItem(
+      id: json['id'],
+      name: json['name'],
+      imageurl: json['imageurl'],
+      count: json['count'],
+    );
+  }
+}
