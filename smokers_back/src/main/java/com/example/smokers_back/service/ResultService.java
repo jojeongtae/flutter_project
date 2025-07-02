@@ -99,7 +99,7 @@ public class ResultService {
     }
 
     public List<ResultDTO> allComment(String winnerType, Integer winnerid) {
-        List<ResultEntity> entityList=resultDAO.allComments(winnerType, winnerid);
+        List<ResultEntity> entityList=resultDAO.findByWinnertypeAndWinnerid(winnerType, winnerid);
         if (entityList.isEmpty()){
             return null;
         }
@@ -119,6 +119,10 @@ public class ResultService {
             resultDTOS.add(resultDTO);
         }
         return resultDTOS;
+    }
+
+    public  deleteById(Integer id) {
+
     }
 
 
