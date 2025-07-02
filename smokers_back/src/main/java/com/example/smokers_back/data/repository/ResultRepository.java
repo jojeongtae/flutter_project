@@ -15,4 +15,8 @@ public interface ResultRepository extends JpaRepository<ResultEntity,Integer> {
 
     List<ResultEntity> findAllByWinnertype(String winnertype);
 
+    @Query("SELECT r.winnerid, COUNT(r) FROM ResultEntity r WHERE r.winnertype = :type GROUP BY r.winnerid ORDER BY COUNT(r) DESC")
+    List<Object[]> findWinnerRanking(@Param("type") String winnertype);
+
+
 }

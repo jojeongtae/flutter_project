@@ -1,9 +1,11 @@
 package com.example.smokers_back.controller;
 
+import com.example.smokers_back.data.dto.RankingDTO;
 import com.example.smokers_back.data.dto.ResultDTO;
 import com.example.smokers_back.data.entity.ResultEntity;
 import com.example.smokers_back.data.entity.UserEntity;
 import com.example.smokers_back.data.repository.ResultRepository;
+import com.example.smokers_back.service.RankingService;
 import com.example.smokers_back.service.ResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,8 @@ import java.util.List;
 @RequestMapping("/result")
 public class ResultController {
     private final ResultService resultService;
+    private final RankingService rankingService;
+
 
     @PostMapping(value="/save")
     public ResponseEntity<ResultDTO> saveResult(@RequestBody ResultDTO resultDTO){
@@ -36,11 +40,17 @@ public class ResultController {
         return ResponseEntity.ok(results);
     }
 
-    @GetMapping(value="/{winnertype}")
-    public ResponseEntity<List<ResultDTO>> findAllByWinnerType(@PathVariable String winnertype){
-        List<ResultDTO> results=resultService.findAllByWinnerType(winnertype);
-        return ResponseEntity.ok(results);
+//    @GetMapping(value="/{winnertype}")
+//    public ResponseEntity<List<ResultDTO>> findAllByWinnerType(@PathVariable String winnertype){
+//        List<ResultDTO> results=resultService.findAllByWinnerType(winnertype);
+//        return ResponseEntity.ok(results);
+//    }
+
+    @GetMapping("/{winnertype}")
+    public ResponseEntity<List<RankingDTO>> getRanking(@PathVariable String winnertype) {
+        return ResponseEntity.ok(rankingService.getRanking(winnertype));
     }
+
 
     @PutMapping(value = "/comment")
     public ResponseEntity<ResultDTO> updateComment(@RequestParam Integer id, @RequestParam String comment){
