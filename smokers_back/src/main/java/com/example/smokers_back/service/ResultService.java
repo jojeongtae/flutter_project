@@ -30,6 +30,7 @@ public class ResultService {
 
         UserEntity user = resultDAO.findUserByUsername(dto.getUsername());
         ResultEntity entity=ResultEntity.builder()
+                .id(dto.getId())
                 .username(user)
                 .winnertype(dto.getWinnertype())
                 .winnerid(dto.getWinnerid())
@@ -40,6 +41,7 @@ public class ResultService {
         ResultEntity saved=resultDAO.save(entity);
 
         ResultDTO resultDTO = new ResultDTO();
+        resultDTO.setId(saved.getId());
         resultDTO.setUsername(user.getUsername());
         resultDTO.setWinnertype(saved.getWinnertype());
         resultDTO.setWinnerid(saved.getWinnerid());

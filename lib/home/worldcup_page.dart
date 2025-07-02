@@ -25,6 +25,7 @@ class _WorldcupPageState extends State<WorldcupPage> {
   final List<WorldcupItem> nextRound = [];
   int currentIndex = 0;
   WorldcupItem? winner;
+  CommentItem? com;
   late ConfettiController _confettiController;
   bool resultSaved = false;
   final TextEditingController _commentController = TextEditingController();
@@ -45,6 +46,21 @@ class _WorldcupPageState extends State<WorldcupPage> {
     super.dispose();
   }
 
+  Future<void> updateComment(String comment) async {
+    print("asdasd ${com?.id}");
+    final url = Uri.parse(
+      "http://10.0.2.2:8080/result/comment?id=${com?.id}&comment=$comment",
+    );
+    try {
+      final res = await http.put(url);
+      if (res.statusCode != 200) {
+        debugPrint("결과 저장 실패: ${res.statusCode}");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   Future<void> resultSave(String comment) async {
     try {
       final user = context.read<UserInfo>();
@@ -61,8 +77,12 @@ class _WorldcupPageState extends State<WorldcupPage> {
         headers: {"Content-Type": "application/json"},
         body: body,
       );
-
-      if (res.statusCode != 200) {
+      if (res.statusCode == 200) {
+        final jsonMap = json.decode(utf8.decode(res.bodyBytes));
+        setState(() {
+          com = CommentItem.fromJson(jsonMap); // <- 서버에서 id를 포함한 응답을 주면 파싱
+        });
+      } else {
         debugPrint("결과 저장 실패: ${res.statusCode}");
       }
     } catch (e) {
@@ -208,20 +228,19 @@ class _WorldcupPageState extends State<WorldcupPage> {
           ElevatedButton(
             onPressed: () {
               final comment = _commentController.text.trim();
-              print("댓글 입력값: $comment"); //
-
-              if (comment.isNotEmpty) {
-                resultSave(comment);
+                updateComment(comment);
                 setState(() {
                   _commentController.clear(); // 저장 후 비우기
                 });
-              } else {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text("댓글을 입력해주세요")));
-              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      Statistics(category: widget.category),
+                ),
+              );
             },
-            child: Text("댓글과 결과 저장"),
+            child: Text("댓글 저장"),
           ),
           SizedBox(height: 20),
           Row(

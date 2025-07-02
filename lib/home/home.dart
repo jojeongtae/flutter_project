@@ -10,7 +10,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final List<String> categories = ['과자', '과일', '반찬', '음식', '음료', "알콜"];
+  final List<String> categories = ['과자', '과일', '반찬', '음식', '음료', "알콜","괴식"];
   final Set<String> selectedCategories = {};
 
   final List<String> worldcupList = [
@@ -19,7 +19,8 @@ class _HomeState extends State<Home> {
     "반찬 월드컵 32강",
     "음료 월드컵 32강",
     "과자 월드컵 32강",
-    "알콜 월드컵 32강"
+    "알콜 월드컵 32강",
+    "괴식 월드컵 32강"
   ];
 
   String convertTitleToCategory(String title) {
@@ -29,6 +30,7 @@ class _HomeState extends State<Home> {
     if (title.contains("음료")) return "beverage";
     if (title.contains("음식")) return "food";
     if (title.contains("알콜")) return "alcohol";
+    if (title.contains("괴식")) return "gwaesik";
     return "unknown";
   }
 
@@ -79,7 +81,7 @@ class _HomeState extends State<Home> {
 
           const SizedBox(height: 10),
           const Divider(),
-
+//  청주/약주 깍두기 진미채
           // ✅ 필터링된 월드컵 리스트
           Expanded(
             child: ListView.builder(

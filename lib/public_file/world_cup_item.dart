@@ -73,6 +73,7 @@ class CommentItem {
   });
 
   factory CommentItem.fromJson(Map<String, dynamic> json){
+    print(json);
     return CommentItem(
         username: json['username'],
         comment: json['comment'],

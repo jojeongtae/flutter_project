@@ -42,5 +42,12 @@ class UserInfo extends ChangeNotifier{
     notifyListeners();
   }
 
-
+void clear(){
+  username = "";
+  password = "";
+  email = "";
+  phone = "";
+  nickname = "";
+  notifyListeners();
+}
 }

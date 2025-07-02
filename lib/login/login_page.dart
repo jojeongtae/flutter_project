@@ -93,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Layout(
       title: _isLogin ? "로그인 페이지" : "회원가입 페이지",
       child: Column(

@@ -9,7 +9,6 @@ class Statistics extends StatelessWidget {
 
   Statistics({super.key, required this.category});
 
-  // 순위 데이터 받아오기
   Future<List<RankingItem>> fetchRanking(String category) async {
     final url = Uri.parse("http://10.0.2.2:8080/result/${category}_world_cup");
     final res = await http.get(url);
@@ -22,13 +21,14 @@ class Statistics extends StatelessWidget {
     }
   }
 
-  // 댓글 데이터 받아오기
   Future<List<CommentItem>> fetchComments(int winnerid) async {
     final url = Uri.parse(
       "http://10.0.2.2:8080/result/comment?winnerid=$winnerid&winnertype=${category}_world_cup",
     );
     final res = await http.get(url);
-
+    if (res.body.trim().isEmpty) {
+      return [];
+    }
     if (res.statusCode == 200) {
       final List<dynamic> result = json.decode(utf8.decode(res.bodyBytes));
       return result.map((e) => CommentItem.fromJson(e)).toList();
@@ -57,161 +57,209 @@ class Statistics extends StatelessWidget {
             itemCount: rankings.length,
             itemBuilder: (context, index) {
               final item = rankings[index];
-              return ListTile(
-                // ✅ leading: 순위 + 이미지
-                leading: SizedBox(
-                  width: 80, // 넉넉한 너비 확보
-                  child: Row(
-                    children: [
-                      Text(
-                        "${index + 1}위",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image.network(
-                          item.imageurl,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Material(
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  child: InkWell(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              height: 400,
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "${item.name}에 대한 댓글",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Expanded(
+                                    child: FutureBuilder<List<CommentItem>>(
+                                      future: fetchComments(item.id),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState == ConnectionState.waiting) {
+                                          return const Center(child: CircularProgressIndicator());
+                                        } else if (snapshot.hasError) {
+                                          return Text("에러: ${snapshot.error}");
+                                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                          return const Text("댓글이 없습니다");
+                                        }
 
-                // ✅ title: 음식 이름
-                title: Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-
-                // ✅ subtitle: 선택된 횟수
-                subtitle: Text(
-                  "선택된 횟수: ${item.count}",
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
-                ),
-
-                // ✅ trailing: 직접 쓰실 예정 → 일단 비워둠
-                trailing: SizedBox(
-                width: 80,
-                height: 10,
-                child: LinearProgressIndicator(
-                  value: item.rating, // 예: 승률
-                  backgroundColor: Colors.grey.shade300,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                ),
-              ),
-
-                // ✅ onTap: 댓글 다이얼로그
-                onTap: () {
-                  // 기존 댓글 다이얼로그 열기
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      // 그대로 유지
-                      return Dialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          height: 400,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${item.name}에 대한 댓글",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Expanded(
-                                child: FutureBuilder<List<CommentItem>>(
-                                  future: fetchComments(item.id),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                      return const Center(child: CircularProgressIndicator());
-                                    } else if (snapshot.hasError) {
-                                      return Text("에러: ${snapshot.error}");
-                                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                      return const Text("댓글이 없습니다");
-                                    }
-
-                                    final comments = snapshot.data!;
-                                    return ListView.builder(
-                                      itemCount: comments.length,
-                                      itemBuilder: (context, index) {
-                                        final comment = comments[index];
-                                        final formattedDate = comment.playedAt.toString().substring(0, 16);
-
-                                        return Padding(
-                                          padding: const EdgeInsets.only(bottom: 10),
-                                          child: ListTile(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                              side: const BorderSide(color: Colors.grey),
-                                            ),
-                                            leading: const Icon(Icons.person),
-                                            subtitle: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        final comments = snapshot.data!;
+                                        return ListView.builder(
+                                          itemCount: comments.length,
+                                          itemBuilder: (context, index) {
+                                            final comment = comments[index];
+                                            final formattedDate = comment.playedAt.toString().substring(0, 16);
+                                            return Padding(
+                                              padding: const EdgeInsets.only(bottom: 10),
+                                              child: ListTile(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  side: const BorderSide(color: Colors.grey),
+                                                ),
+                                                leading: const Icon(Icons.person),
+                                                subtitle: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      comment.username,
-                                                      style: const TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 14,
-                                                      ),
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          comment.username,
+                                                          style: const TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          formattedDate,
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
+                                                    const SizedBox(height: 6),
                                                     Text(
-                                                      formattedDate,
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.grey,
-                                                      ),
+                                                      comment.comment,
+                                                      style: const TextStyle(fontSize: 15),
                                                     ),
                                                   ],
                                                 ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  comment.comment,
-                                                  style: const TextStyle(fontSize: 15),
-                                                ),
-                                              ],
-                                            ),
-                                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                          ),
+                                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                              ),
+                                            );
+                                          },
                                         );
                                       },
-                                    );
-                                  },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // 트로피 아이콘 (1~3등만)
+                          if (index < 3)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: Icon(
+                                Icons.emoji_events,
+                                color: index == 0
+                                    ? Colors.amber
+                                    : index == 1
+                                    ? Colors.grey
+                                    : Colors.brown,
+                                size: 28,
+                              ),
+                            )
+                          else
+                            const SizedBox(width: 34), // 아이콘 없는 등수는 여백만
+
+                          // 순위 원형
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.blueAccent,
+                            child: Text(
+                              "${index + 1}",
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // ✅ Expanded로 감싸서 남은 공간 확보
+                          Expanded(
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    item.imageurl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
+                                const SizedBox(width: 12),
+                                // 이름, 우승횟수, 게이지바 등 텍스트 정보들
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        "우승 횟수: ${item.count}",
+                                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(4),
+                                        child: LinearProgressIndicator(
+                                          value: item.rating,
+                                          minHeight: 8,
+                                          backgroundColor: Colors.grey.shade200,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            item.rating > 0.7
+                                                ? Colors.green
+                                                : item.rating > 0.4
+                                                ? Colors.orange
+                                                : Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          Column(
+                            children: [
+                              const Icon(Icons.bar_chart, size: 20, color: Colors.grey),
+                              Text(
+                                "${(item.rating * 100).round()}%",
+                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               );
-
             },
           );
         },
