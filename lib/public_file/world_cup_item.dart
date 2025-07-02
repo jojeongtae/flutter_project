@@ -62,10 +62,12 @@ class CommentItem {
   final int winnerid;
   final DateTime playedAt;
   final String comment;
+  final String nickname;
 
   CommentItem({
     required this.username,
     required this.comment,
+    required this.nickname,
     required this.winnertype,
     required this.winnerid,
     required this.playedAt,
@@ -79,6 +81,7 @@ class CommentItem {
         comment: json['comment'],
         winnertype: json['winnertype'],
         winnerid: json['winnerid'],
+        nickname: json['nickname'],
         playedAt: DateTime.parse(json['playedAt']),
         id: json['id']);
   }

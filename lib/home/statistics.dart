@@ -120,7 +120,7 @@ class Statistics extends StatelessWidget {
                                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                       children: [
                                                         Text(
-                                                          comment.username,
+                                                          comment.nickname,
                                                           style: const TextStyle(
                                                             fontWeight: FontWeight.bold,
                                                             fontSize: 14,
