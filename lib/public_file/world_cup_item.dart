@@ -5,7 +5,7 @@ class WorldcupItem {
   final String name;
   final String imageurl;
 
-  WorldcupItem({required this.id,required this.name, required this.imageurl});
+  WorldcupItem({required this.id, required this.name, required this.imageurl});
 
   factory WorldcupItem.fromJson(Map<String, dynamic> json) {
     return WorldcupItem(
@@ -50,5 +50,33 @@ class RankingItem {
       imageurl: json['imageurl'],
       count: json['count'],
     );
+  }
+}
+
+class CommentItem {
+  final int id;
+  final String username;
+  final String winnertype;
+  final int winnerid;
+  final DateTime playedAt;
+  final String comment;
+
+  CommentItem({
+    required this.username,
+    required this.comment,
+    required this.winnertype,
+    required this.winnerid,
+    required this.playedAt,
+    required this.id,
+  });
+
+  factory CommentItem.fromJson(Map<String, dynamic> json){
+    return CommentItem(
+        username: json['username'],
+        comment: json['comment'],
+        winnertype: json['winnertype'],
+        winnerid: json['winnerid'],
+        playedAt: json['playedAt'],
+        id: json['id']);
   }
 }

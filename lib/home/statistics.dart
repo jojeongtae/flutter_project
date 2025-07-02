@@ -9,8 +9,9 @@ class Statistics extends StatelessWidget {
 
   Statistics({super.key, required this.category});
 
+  // 순위 데이터 받아오기
   Future<List<RankingItem>> fetchRanking(String category) async {
-    final url = Uri.parse("http://10.0.2.2:8080/result/${category}_world_cup"); // ← category 활용
+    final url = Uri.parse("http://10.0.2.2:8080/result/${category}_world_cup");
     final res = await http.get(url);
 
     if (res.statusCode == 200) {
@@ -21,20 +22,32 @@ class Statistics extends StatelessWidget {
     }
   }
 
+  // 댓글 데이터 받아오기
+  Future<List<String>> fetchComments(String itemName) async {
+    final url = Uri.parse("http://10.0.2.2:8080/comments?item=$itemName");
+    final res = await http.get(url);
+
+    if (res.statusCode == 200) {
+      final List<dynamic> result = json.decode(utf8.decode(res.bodyBytes));
+      return result.map((e) => e.toString()).toList();
+    } else {
+      throw Exception("댓글 데이터를 불러오지 못했습니다");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Layout2(
       title: "최종 순위표",
       child: FutureBuilder<List<RankingItem>>(
-        future: fetchRanking(category!), // ← 예시
+        future: fetchRanking(category!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Text("에러 발생: ${snapshot.error}");
+            return Center(child: Text("에러 발생: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Text("순위 데이터 없음");
+            return const Center(child: Text("순위 데이터 없음"));
           }
 
           final rankings = snapshot.data!;
@@ -47,13 +60,69 @@ class Statistics extends StatelessWidget {
                 title: Text(item.name),
                 subtitle: Text("선택된 횟수: ${item.count}"),
                 trailing: Image.network(item.imageurl, width: 60, height: 60),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          height: 400,
+                          padding:  EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "${item.name}에 대한 댓글",
+                                style:  TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18),
+                              ),
+                               SizedBox(height: 12),
+                              Expanded(
+                                child: FutureBuilder<List<String>>(
+                                  future: fetchComments(item.name),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return  Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (snapshot.hasError) {
+                                      return Text("에러: ${snapshot.error}");
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return  Text("댓글이 없습니다");
+                                    }
+
+                                    final comments = snapshot.data!;
+                                    return ListView.builder(
+                                      itemCount: comments.length,
+                                      itemBuilder: (context, index) {
+                                         Padding(
+                                          padding:  EdgeInsets.symmetric(
+                                              vertical: 4.0),
+                                          child:
+                                          Text("• ${comments[index]}"),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               );
             },
           );
         },
-      )
-
-
+      ),
     );
   }
 }

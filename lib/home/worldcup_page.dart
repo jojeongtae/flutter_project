@@ -208,7 +208,7 @@ class _WorldcupPageState extends State<WorldcupPage> {
           ElevatedButton(
             onPressed: () {
               final comment = _commentController.text.trim();
-              print("댓글 입력값: $comment"); // ← 여기에 출력됨?
+              print("댓글 입력값: $comment"); //
 
               if (comment.isNotEmpty) {
                 resultSave(comment);
