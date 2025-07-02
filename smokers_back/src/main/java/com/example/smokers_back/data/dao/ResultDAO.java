@@ -45,7 +45,7 @@ public class ResultDAO {
         return null;
     }
 
-    public List<ResultEntity> allComments(String winnertype, Integer id) {
+    public List<ResultEntity> findByWinnertypeAndWinnerid(String winnertype, Integer id) {
         return this.resultRepository.findByWinnertypeAndWinnerid(winnertype, id);
     }
 }

@@ -14,4 +14,5 @@ public class RankingDTO {
     private String name;
     private String imageurl;
     private Integer count;
+    private Long rating;
 }
