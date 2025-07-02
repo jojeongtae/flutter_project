@@ -4,6 +4,7 @@ package com.example.smokers_back.controller;
 import com.example.smokers_back.data.dto.UserDTO;
 import com.example.smokers_back.data.entity.UserEntity;
 import com.example.smokers_back.data.repository.UserRepository;
+import com.example.smokers_back.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,16 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
     @PostMapping(value = "/join")
     public ResponseEntity<String> join(@RequestBody UserDTO userDTO) {
@@ -47,5 +46,23 @@ public class UserController {
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
         return ResponseEntity.status(HttpStatus.OK).body("refresh token deleted");
+    }
+
+    @GetMapping(value="/user/{username}")
+    public ResponseEntity<UserDTO> findUserByUsername(@PathVariable String username) {
+        UserDTO userDTO=userService.findUserByUsername(username);
+        if(userDTO==null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userDTO);
+    }
+
+    @PutMapping(value="/user/modify")
+    public ResponseEntity<UserDTO> modifyUser(@RequestBody UserDTO userDTO) {
+        UserDTO modified=userService.modifyUser(userDTO);
+        if(modified==null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(modified);
     }
 }
