@@ -27,7 +27,7 @@ public class RankingService {
         List<Object[]> rawData = resultRepository.findWinnerRanking(winnertype);
 
         List<RankingDTO> result = new ArrayList<>();
-        Long total = 0L;
+        Double total = 0.0;
         for (Object[] row : rawData) {
             total = total + (Long) row[1];
         }
@@ -42,7 +42,7 @@ public class RankingService {
         return result;
     }
 
-    private RankingDTO getItemInfo(String winnertype, Integer id, int count, Long total) {
+    private RankingDTO getItemInfo(String winnertype, Integer id, int count, Double total) {
 
         switch (winnertype) {
             case "food_world_cup":
