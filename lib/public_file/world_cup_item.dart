@@ -76,7 +76,7 @@ class CommentItem {
         comment: json['comment'],
         winnertype: json['winnertype'],
         winnerid: json['winnerid'],
-        playedAt: json['playedAt'],
+        playedAt: DateTime.parse(json['playedAt']),
         id: json['id']);
   }
 }

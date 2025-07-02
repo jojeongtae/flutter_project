@@ -23,8 +23,8 @@ class Statistics extends StatelessWidget {
   }
 
   // 댓글 데이터 받아오기
-  Future<List<String>> fetchComments(String itemName) async {
-    final url = Uri.parse("http://10.0.2.2:8080/comments?item=$itemName");
+  Future<List<String>> fetchComments(int winnerid) async {
+    final url = Uri.parse("http://10.0.2.2:8080?winnerid=$winnerid&winnertype=${category}_world_cup");
     final res = await http.get(url);
 
     if (res.statusCode == 200) {
@@ -61,6 +61,7 @@ class Statistics extends StatelessWidget {
                 subtitle: Text("선택된 횟수: ${item.count}"),
                 trailing: Image.network(item.imageurl, width: 60, height: 60),
                 onTap: () {
+                  //댓글창
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -71,40 +72,43 @@ class Statistics extends StatelessWidget {
                         child: Container(
                           width: MediaQuery.of(context).size.width * 0.8,
                           height: 400,
-                          padding:  EdgeInsets.all(16),
+                          padding: EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "${item.name}에 대한 댓글",
-                                style:  TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                               ),
-                               SizedBox(height: 12),
+                              SizedBox(height: 12),
                               Expanded(
                                 child: FutureBuilder<List<String>>(
-                                  future: fetchComments(item.name),
+                                  future: fetchComments(item.id),
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
-                                      return  Center(
-                                          child: CircularProgressIndicator());
+                                      return Center(
+                                        child: CircularProgressIndicator(),
+                                      );
                                     } else if (snapshot.hasError) {
                                       return Text("에러: ${snapshot.error}");
                                     } else if (!snapshot.hasData ||
                                         snapshot.data!.isEmpty) {
-                                      return  Text("댓글이 없습니다");
+                                      return Text("댓글이 없습니다");
                                     }
 
                                     final comments = snapshot.data!;
                                     return ListView.builder(
                                       itemCount: comments.length,
                                       itemBuilder: (context, index) {
-                                         Padding(
-                                          padding:  EdgeInsets.symmetric(
-                                              vertical: 4.0),
-                                          child:
-                                          Text("• ${comments[index]}"),
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 4.0,
+                                          ),
+                                          child: Text("• ${comments[index]}"),
                                         );
                                       },
                                     );
