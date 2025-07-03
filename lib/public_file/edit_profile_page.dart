@@ -3,8 +3,7 @@ import 'package:jomakase/public_file/layout.dart';
 import 'package:jomakase/public_file/token.dart';
 import 'package:jomakase/public_file/userinfo.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:jomakase/public_file/api_service.dart'; // ApiService import
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -41,39 +40,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _formKey.currentState!.save();
 
       final user = context.read<UserInfo>();
-      final url = Uri.parse("http://10.0.2.2:8080/user/modify");
-      final body = json.encode({
+      final tokenToSend = context.read<Token>().accessToken;
+      final userData = {
         "email": _emailController.text,
         "phone": _phoneController.text,
         "nickname": _nicknameController.text,
-      });
+      };
 
       try {
-        final tokenToSend = context.read<Token>().accessToken;
-        print("Attempting to send Authorization header with token: Bearer $tokenToSend");
-        final res = await http.put(
-          url,
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $tokenToSend", // 수정된 부분
-          },
-          body: body,
+        await ApiService.updateProfile(tokenToSend, userData); // ApiService.updateProfile 호출
+        // Assuming the API returns the updated user info, or we update locally
+        user.updateFromJson(userData); // Update local UserInfo
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('정보가 성공적으로 업데이트되었습니다.')),
         );
-
-        if (res.statusCode == 200) {
-          final updatedUser = UserInfo.fromJson(json.decode(utf8.decode(res.bodyBytes)));
-          user.updateFromOtherUserInfo(updatedUser); // UserInfo 업데이트
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('정보가 성공적으로 업데이트되었습니다.')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('정보 업데이트 실패: ${res.statusCode}')),
-          );
-        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('정보 업데이트 중 오류 발생: $e')),
+          SnackBar(content: Text('정보 업데이트 실패: ${e.toString().replaceFirst('Exception: ', '')}')),
         );
       }
     }
