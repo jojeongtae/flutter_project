@@ -12,8 +12,9 @@ import 'package:url_launcher/url_launcher.dart';
 class WorldcupPage extends StatefulWidget {
   final String? title;
   final String? category;
+  final int? count; // count 필드 추가
 
-  const WorldcupPage({super.key, required this.title, required this.category});
+  const WorldcupPage({super.key, required this.title, required this.category, this.count});
 
   @override
   State<WorldcupPage> createState() => _WorldcupPageState();
@@ -36,7 +37,12 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    futureItems = fetchData();
+    futureItems = fetchData().then((items) {
+      if (widget.count != null && items.length > widget.count!) {
+        return items.sublist(0, widget.count!); // count에 따라 아이템 제한
+      }
+      return items;
+    });
     _confettiController = ConfettiController(duration: const Duration(seconds: 3));
     _animationController = AnimationController(
       vsync: this,
@@ -125,35 +131,40 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
   }
 
   Widget buildChoiceCard(WorldcupItem item) {
-    return Expanded(
-      child: Card(
-        elevation: 2.0, // Reduced elevation
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
-          // side: BorderSide(color: Colors.grey.shade200), // Removed the subtle border
-        ),
-        clipBehavior: Clip.antiAlias, // Ensure content is clipped to border radius
-        child: InkWell(
-          onTap: () => selectWinner(item),
-          borderRadius: BorderRadius.circular(16.0),
-          child: Column(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
-                child: Image.network(
-                  item.imageurl,
-                  width: 400,
-                  height: 280, // Adjusted height to be slightly smaller than 180
-                  fit: BoxFit.contain,
-                  errorBuilder: (c, e, s) => const Icon(Icons.error, size: 120),
+    return Card(
+      elevation: 2.0, // Reduced elevation
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16.0),
+        // side: BorderSide(color: Colors.grey.shade200), // Removed the subtle border
+      ),
+      clipBehavior: Clip.antiAlias, // Ensure content is clipped to border radius
+      child: InkWell(
+        onTap: () => selectWinner(item),
+        borderRadius: BorderRadius.circular(16.0),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16.0)),
+              child: Image.network(
+                item.imageurl,
+                width: 400,
+                height: 280, // Adjusted height to be slightly smaller than 180
+                fit: BoxFit.contain,
+                errorBuilder: (c, e, s) => Icon(Icons.error, size: 120, color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reverted vertical padding
+              child: Text(
+                item.name,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reverted vertical padding
-                child: Text(item.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -199,7 +210,7 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
               emissionFrequency: 0.05,
               numberOfParticles: 20,
             ),
-            const Text("🏆 최종 우승 🏆", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.amber)),
+            Text("🏆 최종 우승 🏆", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary)),
             const SizedBox(height: 24),
             ScaleTransition(
               scale: Tween<double>(begin: 0.5, end: 1.0).animate(CurvedAnimation(parent: _animationController, curve: Curves.elasticOut)),
@@ -213,7 +224,7 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
               ),
             ),
             const SizedBox(height: 16),
-            Text(winner!.name, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+            Text(winner!.name, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
             const SizedBox(height: 32),
             TextField(
               controller: _commentController,
@@ -233,7 +244,7 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
               },
               icon: const Icon(Icons.save),
               label: const Text("댓글 저장"),
-              style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
+              style: ElevatedButton.styleFrom(backgroundColor: primaryColor, foregroundColor: Theme.of(context).colorScheme.onPrimary, padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15)),
             ),
             const SizedBox(height: 24),
             Wrap(
@@ -241,15 +252,15 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
               runSpacing: 12,
               alignment: WrapAlignment.center,
               children: [
-                ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Statistics(category: widget.category))), child: const Text("전체 순위 보기")),
-                ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text("홈으로 돌아가기")),
+                ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Statistics(category: widget.category))), child: Text("전체 순위 보기")),
+                ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("홈으로 돌아가기")),
                 ElevatedButton.icon(
                   onPressed: () async {
                     final url = Uri.parse("https://www.google.com/search?q=${Uri.encodeComponent(winner!.name)}");
                     if (await canLaunchUrl(url)) await launchUrl(url);
                   },
                   icon: const Icon(Icons.search),
-                  label: const Text("웹에서 검색"),
+                  label: Text("웹에서 검색"),
                 ),
               ],
             ),
@@ -291,12 +302,12 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
               children: [
                 Text(
                   "${currentRound.length}강",
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   "마음에 드는 것을 선택하세요!",
-                  style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyMedium?.color),
                 ),
                 const SizedBox(height: 24),
                 Expanded(

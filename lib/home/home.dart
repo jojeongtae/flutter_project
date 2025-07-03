@@ -43,17 +43,15 @@ class _HomeState extends State<Home> {
         .toList();
     
     // Define a modern color scheme
-    final Color primaryColor = Colors.deepPurple;
-    final Color accentColor = Colors.amber;
-    final Color backgroundColor = Colors.grey.shade50;
-    final Color textColor = Colors.grey.shade800;
-    final Color subtleTextColor = Colors.grey.shade600;
+    final Color primaryColor = Theme.of(context).primaryColor;
+    final Color accentColor = Theme.of(context).colorScheme.secondary;
+    final Color backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final Color textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+    final Color subtleTextColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.grey;
 
     return Layout2(
       title: "이상형 월드컵 모음집",
-      child: Container(
-        color: backgroundColor,
-        child: Column(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Category Filter Section
@@ -88,16 +86,16 @@ class _HomeState extends State<Home> {
                           }
                         });
                       },
-                      backgroundColor: isSelected ? primaryColor.withOpacity(0.1) : Colors.grey.shade200,
+                      backgroundColor: isSelected ? primaryColor : Theme.of(context).colorScheme.surface,
                       selectedColor: primaryColor.withOpacity(0.2),
                       labelStyle: TextStyle(
-                        color: isSelected ? primaryColor : textColor,
+                        color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).textTheme.bodyLarge?.color,
                         fontWeight: FontWeight.w600,
                       ),
-                      checkmarkColor: primaryColor,
+                      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
                       shape: StadiumBorder(
                         side: BorderSide(
-                          color: isSelected ? primaryColor : Colors.grey.shade300,
+                          color: isSelected ? primaryColor : Theme.of(context).dividerColor,
                         ),
                       ),
                     ),
@@ -132,20 +130,73 @@ class _HomeState extends State<Home> {
                         item,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: textColor,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                           fontSize: 17,
                         ),
                       ),
                       trailing: Icon(Icons.arrow_forward_ios, size: 16, color: subtleTextColor),
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => WorldcupPage(
-                              title: item,
-                              category: convertTitleToCategory(item),
-                            ),
-                          ),
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (BuildContext bc) {
+                            return SafeArea(
+                              child: Wrap(
+                                children: <Widget>[
+                                  ListTile(
+                                    leading: const Icon(Icons.looks_3),
+                                    title: const Text('32강'),
+                                    onTap: () {
+                                      Navigator.pop(bc);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => WorldcupPage(
+                                            title: item,
+                                            category: convertTitleToCategory(item),
+                                            count: 32,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.looks_two),
+                                    title: const Text('16강'),
+                                    onTap: () {
+                                      Navigator.pop(bc);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => WorldcupPage(
+                                            title: item,
+                                            category: convertTitleToCategory(item),
+                                            count: 16,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.looks_one),
+                                    title: const Text('8강'),
+                                    onTap: () {
+                                      Navigator.pop(bc);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => WorldcupPage(
+                                            title: item,
+                                            category: convertTitleToCategory(item),
+                                            count: 8,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
@@ -155,7 +206,7 @@ class _HomeState extends State<Home> {
             ),
           ],
         ),
-      ),
-    );
+      );
+
   }
 }

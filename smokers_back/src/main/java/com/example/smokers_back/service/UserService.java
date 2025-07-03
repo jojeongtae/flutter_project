@@ -5,6 +5,7 @@ import com.example.smokers_back.data.dto.UserDTO;
 import com.example.smokers_back.data.entity.UserEntity;
 import com.example.smokers_back.data.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,13 +31,13 @@ public class UserService {
     }
 
     public UserDTO modifyUser(UserDTO userDTO) {
-        UserEntity userEntity = resultDAO.findUserByUsername(userDTO.getUsername());
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity userEntity = resultDAO.findUserByUsername(username);
 
         if(userEntity==null){
             return null;
         }
 
-        userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userEntity.setEmail(userDTO.getEmail());
         userEntity.setNickname(userDTO.getNickname());
         userEntity.setPhone(userDTO.getPhone());

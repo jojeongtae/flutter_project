@@ -47,13 +47,15 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       final res = await http.post(url, headers: {'Content-Type': 'application/x-www-form-urlencoded'},body: data);
       print(res.statusCode);
       if (res.statusCode == 200) {
-        final token = res.headers['authorization'];
+        final token = res.headers['authorization']?.replaceFirst('Bearer ', ''); // Bearer 접두사 제거
         final refresh = res.headers['set-cookie'];
+        print("Received Token: Bearer $token"); // 이 줄 추가
         provider.accessToken = token!;
         provider.refreshToken = refresh!;
 
         UserInfo userInfo = context.read<UserInfo>();
         userInfo.updateFromJson(json.decode(utf8.decode(res.bodyBytes)));
+        userInfo.token = token!; // token 저장
         return true;
       } else if (res.statusCode == 401) {
         final msg = json.decode(utf8.decode(res.bodyBytes));
@@ -141,7 +143,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                   Text(
                     _isLogin ? "다시 오신 것을 환영합니다!" : "새로운 계정을 만드세요",
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: primaryColor),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.headlineMedium?.color),
                   ),
                   const SizedBox(height: 40),
                   _buildTextFormField(key: const ValueKey('username'), icon: Icons.person, label: "아이디", onSaved: (val) => username = val),
@@ -163,7 +165,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text(_isLogin ? "로그인" : "회원가입", style: const TextStyle(fontSize: 18, color: Colors.white)),
+                    child: Text(_isLogin ? "로그인" : "회원가입", style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onPrimary)),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
@@ -207,7 +209,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
-        fillColor: Colors.grey.shade100,
+        fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).colorScheme.surface,
       ),
     );
   }

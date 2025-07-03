@@ -24,14 +24,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String rawAuthorizationHeader = request.getHeader("Authorization"); // 이 줄 추가
+        System.out.println("Raw Authorization Header: " + rawAuthorizationHeader);
         String token = request.getHeader("Authorization");
+
         if (token == null || !token.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         token = token.split(" ")[1];
-
+        System.out.println("token: " + token    );
         try{
             this.jwtUtil.isExpired(token);
         }catch(ExpiredJwtException e){

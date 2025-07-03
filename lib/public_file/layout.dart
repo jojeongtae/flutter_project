@@ -3,6 +3,8 @@ import 'package:jomakase/home/home.dart';
 import 'package:jomakase/login/login_page.dart';
 import 'package:jomakase/public_file/token.dart';
 import 'package:jomakase/public_file/userinfo.dart';
+import 'package:jomakase/public_file/settings_page.dart';
+import 'package:jomakase/public_file/edit_profile_page.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -109,22 +111,32 @@ class Layout2 extends StatelessWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.star, color: accentColor), // 강조 색상 사용
+              leading: Icon(Icons.settings, color: accentColor), // 강조 색상 사용
               title: Text(
-                '내 즐겨 찾기 목록',
+                '앱 설정',
                 style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
               trailing: Icon(Icons.arrow_forward, color: Theme.of(context).iconTheme.color),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                );
+              },
             ),
             ListTile(
-              leading: Icon(Icons.account_circle, color: primaryColor), // primaryColor 사용
+              leading: Icon(Icons.account_circle, color: Theme.of(context).textTheme.bodyLarge?.color), // primaryColor 사용
               title: Text(
                 "내 정보 수정",
                 style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
               trailing: Icon(Icons.arrow_forward, color: Theme.of(context).iconTheme.color),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                );
+              },
             ),
           ],
         ),
