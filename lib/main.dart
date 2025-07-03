@@ -64,6 +64,7 @@ class MyApp extends StatelessWidget {
               ),
               labelStyle: TextStyle(color: Colors.deepPurple),
             ),
+            scaffoldBackgroundColor: const Color(0xFFF3E5F5),
           ),
           darkTheme: ThemeData(
             primarySwatch: Colors.deepPurple,
