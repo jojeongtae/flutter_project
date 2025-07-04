@@ -301,11 +301,11 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
             child: Column(
               children: [
                 Text(
-                  "${currentRound.length}강",
+                  currentRound.length == 2 ? "결승" : "${currentRound.length}강",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
                 ),
                 const SizedBox(height: 8),
-                Text(
+                 Text(
                   "마음에 드는 것을 선택하세요!",
                   style: TextStyle(fontSize: 16, color: Theme.of(context).textTheme.bodyMedium?.color),
                 ),
