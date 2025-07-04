@@ -59,21 +59,29 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
   }
 
   Future<void> updateComment(String comment) async {
-    try {
-      await ApiService.updateComment(com!.id, comment); // ApiService.updateComment 호출
-    } catch (e) {
-      debugPrint("Comment update error: \$e");
+    print("ㅎㅇㅎㅇㅎㅇㅎㅇㅎㅇㅎㅇㅎㅇㅎㅇㅎ ${com?.id}" );
+    if (com != null) {
+      try {
+        await ApiService.updateComment(com!.id, comment);
+      } catch (e) {
+        debugPrint("Comment update error: $e");
+      }
+    } else {
+      debugPrint("Comment not found, cannot update.");
     }
   }
 
   Future<void> resultSave(String comment) async {
     try {
       final user = context.read<UserInfo>();
-      final winnertype = "${widget.category}_world_cup"; // 복구
-      await ApiService.saveWorldcupResult(user.username!, winnertype, winner!.id, comment); // ApiService.saveWorldcupResult 호출
+      final winnertype = "${widget.category}_world_cup";
+      final savedComment = await ApiService.saveWorldcupResult(user.username!, winnertype, winner!.id, comment);
+      setState(() {
+        com = savedComment;
+      });
       resultSaved = true;
     } catch (e) {
-      debugPrint("Result save error: \$e");
+      debugPrint("Result save error: $e");
     }
   }
 
@@ -89,7 +97,7 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
           _confettiController.play();
         });
         if (!resultSaved) {
-          resultSave(_commentController.text);
+          resultSave(""); // Save result with an empty comment
           resultSaved = true;
         }
       } else {

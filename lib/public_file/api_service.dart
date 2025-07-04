@@ -97,7 +97,7 @@ class ApiService {
     }
   }
 
-  static Future<void> saveWorldcupResult(String username, String winnertype, int winnerid, String comment) async {
+  static Future<CommentItem> saveWorldcupResult(String username, String winnertype, int winnerid, String comment) async {
     final url = Uri.parse("$baseUrl/result/save");
     final body = json.encode({
       "username": username,
@@ -107,7 +107,9 @@ class ApiService {
     });
 
     final res = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
-    if (res.statusCode != 200) {
+    if (res.statusCode == 200) {
+      return CommentItem.fromJson(json.decode(utf8.decode(res.bodyBytes)));
+    } else {
       throw Exception("Failed to save result");
     }
   }
