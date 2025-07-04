@@ -49,7 +49,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       try {
         await ApiService.updateProfile(tokenToSend, userData); // ApiService.updateProfile 호출
-        // Assuming the API returns the updated user info, or we update locally
         user.updateFromJson(userData); // Update local UserInfo
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('정보가 성공적으로 업데이트되었습니다.')),

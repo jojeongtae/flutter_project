@@ -116,9 +116,18 @@ class Statistics extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
-          Text(
-            "우승 횟수: ${item.count}",
-            style: TextStyle(color: subtleTextColor, fontSize: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "우승 횟수: ${item.count}",
+                style: TextStyle(color: subtleTextColor, fontSize: 14),
+              ),
+              Text(
+                "승률 : ${(100*item.rating).round()}%"
+              )
+
+            ],
           ),
           const SizedBox(height: 8),
           LinearProgressIndicator(
