@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:jomakase/home/statistics.dart';
 import 'package:jomakase/public_file/layout.dart';
 import 'package:jomakase/public_file/userinfo.dart';
@@ -8,13 +6,14 @@ import 'package:jomakase/public_file/world_cup_item.dart';
 import 'package:confetti/confetti.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:jomakase/public_file/api_service.dart'; // ApiService import
 
 class WorldcupPage extends StatefulWidget {
   final String? title;
   final String? category;
   final int? count; // count 필드 추가
 
-  const WorldcupPage({super.key, required this.title, required this.category, this.count});
+  const WorldcupPage({super.key, required this.title, this.category, this.count});
 
   @override
   State<WorldcupPage> createState() => _WorldcupPageState();
@@ -37,7 +36,7 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    futureItems = fetchData().then((items) {
+    futureItems = ApiService.fetchWorldcupItems(widget.category!).then((items) {
       if (widget.count != null && items.length > widget.count!) {
         return items.sublist(0, widget.count!); // count에 따라 아이템 제한
       }
@@ -60,48 +59,21 @@ class _WorldcupPageState extends State<WorldcupPage> with TickerProviderStateMix
   }
 
   Future<void> updateComment(String comment) async {
-    final url = Uri.parse("http://10.0.2.2:8080/result/comment?id=${com?.id}&comment=$comment");
     try {
-      final res = await http.put(url);
-      if (res.statusCode != 200) debugPrint("Comment update failed: ${res.statusCode}");
+      await ApiService.updateComment(com!.id, comment); // ApiService.updateComment 호출
     } catch (e) {
-      debugPrint("Comment update error: $e");
+      debugPrint("Comment update error: \$e");
     }
   }
 
   Future<void> resultSave(String comment) async {
     try {
       final user = context.read<UserInfo>();
-      final url = Uri.parse("http://10.0.2.2:8080/result/save");
-      final body = json.encode({
-        "username": user.username,
-        "winnertype": "${widget.category}_world_cup",
-        "winnerid": winner!.id,
-        "comment": comment,
-      });
-
-      final res = await http.post(url, headers: {"Content-Type": "application/json"}, body: body);
-      if (res.statusCode == 200) {
-        final jsonMap = json.decode(utf8.decode(res.bodyBytes));
-        setState(() => com = CommentItem.fromJson(jsonMap));
-      } else {
-        debugPrint("Result save failed: ${res.statusCode}");
-      }
+      final winnertype = "${widget.category}_world_cup"; // 복구
+      await ApiService.saveWorldcupResult(user.username!, winnertype, winner!.id, comment); // ApiService.saveWorldcupResult 호출
+      resultSaved = true;
     } catch (e) {
-      debugPrint("Result save error: $e");
-    }
-  }
-
-  Future<List<WorldcupItem>> fetchData() async {
-    final url = Uri.parse("http://10.0.2.2:8080/${widget.category}");
-    final res = await http.get(url);
-
-    if (res.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(utf8.decode(res.bodyBytes));
-      final pairs = jsonList.map((e) => FoodPair.fromJson(e)).toList();
-      return pairs.expand((p) => [p.item1, p.item2]).toList()..shuffle();
-    } else {
-      throw Exception("Failed to load data from server");
+      debugPrint("Result save error: \$e");
     }
   }
 

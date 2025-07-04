@@ -2,6 +2,7 @@ package com.example.smokers_back.data.dao;
 
 import com.example.smokers_back.data.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,4 +32,5 @@ public class ItemDAO {
             default -> throw new IllegalArgumentException("Invalid type");
         };
     }
+
 }

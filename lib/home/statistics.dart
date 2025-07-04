@@ -1,41 +1,12 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:jomakase/public_file/layout.dart';
 import 'package:jomakase/public_file/world_cup_item.dart';
+import 'package:jomakase/public_file/api_service.dart'; // ApiService import
 
 class Statistics extends StatelessWidget {
   final String? category;
 
   Statistics({super.key, required this.category});
-
-  Future<List<RankingItem>> fetchRanking(String category) async {
-    final url = Uri.parse("http://10.0.2.2:8080/result/${category}_world_cup");
-    final res = await http.get(url);
-
-    if (res.statusCode == 200) {
-      final List<dynamic> result = json.decode(utf8.decode(res.bodyBytes));
-      return result.map((e) => RankingItem.fromJson(e)).toList();
-    } else {
-      throw Exception("순위 데이터를 불러오지 못했습니다");
-    }
-  }
-
-  Future<List<CommentItem>> fetchComments(int winnerid) async {
-    final url = Uri.parse(
-      "http://10.0.2.2:8080/result/comment?winnerid=$winnerid&winnertype=${category}_world_cup",
-    );
-    final res = await http.get(url);
-    if (res.body.trim().isEmpty) {
-      return [];
-    }
-    if (res.statusCode == 200) {
-      final List<dynamic> result = json.decode(utf8.decode(res.bodyBytes));
-      return result.map((e) => CommentItem.fromJson(e)).toList();
-    } else {
-      throw Exception("댓글 데이터를 불러오지 못했습니다");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +21,7 @@ class Statistics extends StatelessWidget {
       child: Container(
         color: backgroundColor,
         child: FutureBuilder<List<RankingItem>>(
-          future: fetchRanking(category!),
+          future: ApiService.fetchRanking(category!), // ApiService.fetchRanking 호출
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primaryColor)));
@@ -182,7 +153,7 @@ class Statistics extends StatelessWidget {
                 SizedBox(
                   height: 300,
                   child: FutureBuilder<List<CommentItem>>(
-                    future: fetchComments(item.id),
+                    future: ApiService.fetchComments(item.id, "${category}_world_cup"), // ApiService.fetchComments 호출
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(primaryColor)));

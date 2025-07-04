@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:jomakase/public_file/layout.dart';
 import 'package:jomakase/public_file/token.dart';
 import 'package:jomakase/public_file/userinfo.dart';
 import 'package:provider/provider.dart';
+import 'package:jomakase/public_file/api_service.dart'; // ApiService import
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -37,38 +37,22 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
   Future<bool> loginRequest() async {
     Token provider = context.read<Token>();
-
-    final url = Uri.parse("http://10.0.2.2:8080/login");
-    final Map<String, String> data = {
-      'username': username!,
-      'password': password!,
-    };
     try {
-      final res = await http.post(url, headers: {'Content-Type': 'application/x-www-form-urlencoded'},body: data);
-      print(res.statusCode);
-      if (res.statusCode == 200) {
-        final token = res.headers['authorization']?.replaceFirst('Bearer ', ''); // Bearer 접두사 제거
-        final refresh = res.headers['set-cookie'];
-        print("Received Token: Bearer $token"); // 이 줄 추가
-        provider.accessToken = token!;
-        provider.refreshToken = refresh!;
+      final response = await ApiService.login(username!, password!); // ApiService.login 호출
+      provider.accessToken = response['token']!;
+      provider.refreshToken = response['refresh']!;
 
-        UserInfo userInfo = context.read<UserInfo>();
-        userInfo.updateFromJson(json.decode(utf8.decode(res.bodyBytes)));
-        userInfo.token = token!; // token 저장
-        return true;
-      } else if (res.statusCode == 401) {
-        final msg = json.decode(utf8.decode(res.bodyBytes));
-        _showSnackbar(msg['error'], Colors.red);
-      }
+      UserInfo userInfo = context.read<UserInfo>();
+      userInfo.updateFromJson(response['userInfo']);
+      userInfo.token = response['token']!;
+      return true;
     } catch (e) {
-      print(e);
+      _showSnackbar(e.toString().replaceFirst('Exception: ', ''), Colors.red);
     }
     return false;
   }
 
   Future<bool> signupRequest() async {
-    final url = Uri.parse("http://10.0.2.2:8080/join");
     final data = {
       'username': username,
       'password': password,
@@ -78,21 +62,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     };
 
     try {
-      final res = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
-      );
-
-      if (res.statusCode == 200) {
-        _showSnackbar("회원가입 성공", Colors.green);
-        return true;
-      } else {
-        final msg = json.decode(utf8.decode(res.bodyBytes));
-        _showSnackbar(msg['error'], Colors.red);
-      }
+      await ApiService.signup(data as Map<String, dynamic>); // ApiService.signup 호출
+      _showSnackbar("회원가입 성공", Colors.green);
+      return true;
     } catch (e) {
-      print(e);
+      _showSnackbar(e.toString().replaceFirst('Exception: ', ''), Colors.red);
     }
     return false;
   }
@@ -207,7 +181,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.deepPurple),
+        ),
         filled: true,
         fillColor: Theme.of(context).inputDecorationTheme.fillColor ?? Theme.of(context).colorScheme.surface,
       ),

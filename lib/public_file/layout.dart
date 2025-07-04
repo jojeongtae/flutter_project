@@ -6,7 +6,7 @@ import 'package:jomakase/public_file/userinfo.dart';
 import 'package:jomakase/public_file/settings_page.dart';
 import 'package:jomakase/public_file/edit_profile_page.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:jomakase/public_file/api_service.dart'; // ApiService import
 
 class Layout extends StatelessWidget {
   final Widget? child;
@@ -34,8 +34,9 @@ class Layout extends StatelessWidget {
 class Layout2 extends StatelessWidget {
   final Widget? child;
   final String? title;
+  final FloatingActionButton? floatingActionButton; // New property
 
-  const Layout2({super.key, this.child, this.title});
+  const Layout2({super.key, this.child, this.title, this.floatingActionButton}); // Updated constructor
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +44,6 @@ class Layout2 extends StatelessWidget {
     final Color primaryColor = Theme.of(context).primaryColor;
     final Color onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
     final Color accentColor = Theme.of(context).colorScheme.secondary;
-
-    Future<void> logoutRequest() async {
-      final url = Uri.parse("http://10.0.2.2:8080/logout1");
-      final res = await http.post(url);
-      Token tkProvider = context.read<Token>();
-      tkProvider.clear();
-      UserInfo userProvider = context.read<UserInfo>();
-      userProvider.clear();
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -79,7 +71,11 @@ class Layout2 extends StatelessWidget {
           ),
           IconButton(
             onPressed: () async {
-              logoutRequest();
+              await ApiService.logout(); // ApiService.logout 호출
+              Token tkProvider = context.read<Token>();
+              tkProvider.clear();
+              UserInfo userProvider = context.read<UserInfo>();
+              userProvider.clear();
               await Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => LoginPage()),
@@ -137,12 +133,12 @@ class Layout2 extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const EditProfilePage()),
                 );
               },
-            ),
+            )
           ],
         ),
       ),
       body: child,
+      floatingActionButton: floatingActionButton, // Pass the new property to Scaffold
     );
   }
 }
-

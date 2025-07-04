@@ -1,1 +1,1 @@
- Attempting to send Authorization header with token: Bearer Bearer eyJhbGciOiJIUzI1NiJ9.eyJjYXRlZ29yeSI6ImFjY2VzcyIsInVzZXJuYW1lIjoiYWFhIiwicm9sZSI6IlJPTEVfVVNFUiIsImlhdCI6MTc1MTUwODU5NCwiZXhwIjoxNzUxNTk0OTk0fQ.eBYTGKQwzIGBOcjM_UEWnyF8gqZDv3QK-snCNLa3VFY
+etching user-generated worldcup items: type 'Null' is not a subtype of type 'String'
